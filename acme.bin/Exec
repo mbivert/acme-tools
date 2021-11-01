@@ -1,0 +1,58 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [-t [-a|id|pattern]] [-e [-a|id|pattern]] <cmd>
+	$p [-o [-a|id|pattern]] <cmd>
+
+DESCRIPTION
+	$p runs a command, sending stdout/stderr to acme buffers,
+	defaulting to +Buffer.
+
+	The buffers are automatically cleaned before hand.
+
+	-t selects stdout buffer, forwarding [-a|id|pattern] to Getids
+	-t selects stderr buffer, forwarding [-a|id|pattern] to Getids
+
+	-o is a shortcut to set both -t and -e.
+EOF
+	exit 0
+fi
+
+while getopts "t:e:o:" opt; do
+	case "$opt" in
+	t) to=$OPTARG ;;
+	e) err=$OPTARG ;;
+	o) to=$OPTARG; err=$OPTARG ;;
+	esac
+done
+
+shift $((OPTIND-1))
+
+if [ -z "$to" ];  then to=-a;  fi
+if [ -z "$err" ]; then err=-a; fi
+
+if [ -z "$1" ]; then
+	echo "Exec [-t stdout] [-e stderr] [-o both] <command>" | To $err
+	exit 1
+fi
+
+# Having two To on the same buffer would mess things up
+# because To clean window beforehand.
+#
+# We're comparing pointers, but good enough in practice.
+if [ "$err" = "$to" ]; then
+	eval "$*" </dev/stdin 2>&1 | To $to
+else
+	{
+		eval "$*" </dev/stdin 2>&3 | To $to
+	} 3>&1 | To $err
+fi

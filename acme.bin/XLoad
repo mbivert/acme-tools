@@ -1,0 +1,60 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p <session>
+
+DESCRIPTION
+	$p loads the state described by <session>. <session> is automatically
+	appended a .dump suffix, and is looked as a file in \$HOME/acme.dumps/.
+
+	We nuke all existing windows before hand, as Acme's Load just
+	add windows.
+
+EOF
+	exit 0
+fi
+
+# If trying to load an inexisting dump, try to create
+# it from a base.dump.
+
+d=$HOME/acme.dumps
+mkdir -p $d
+
+if [ -z "$1" ]; then
+	echo `basename $0` '[-l]' >&2
+	echo `basename $0` '<dumpfile>' >&2
+	exit 1
+fi
+
+# List available dumps
+if [ "$1" = "-l" ]; then
+	ls $d/*.dump | while read x; do
+		echo `basename $x .dump`
+	done
+	exit 0
+fi
+
+f="$1"
+if ! echo "$f" | grep -q '\.dump$'; then
+	f=$d/$1.dump
+fi
+
+if [ ! -e "$f" ]; then
+	if [ ! -e "$d/base.dump" ]; then
+		echo "$1/$f does not exists, and no base.dump to create it from" >&2
+		exit 2
+	fi
+	cp $d/base.dump $f
+fi
+
+Delall
+Do "Load $f" -a

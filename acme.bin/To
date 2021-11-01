@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [-a|id|pattern]
+
+DESCRIPTION
+	$p redirects stdin/stdout to the first window pointed by
+	[-a|id|pattern]. We default to -a (+Buffer file).
+
+	If there's no buffer to write to, act as a cat(1).
+
+EXAMPLES
+	# Display stat(1)'s output for current buffer in +Buffer,
+	# creating it if necessary.
+	(tagline)\$ stat \$% | To
+EOF
+	exit 0
+fi
+
+if [ -z "$1" ]; then set -- -a; fi
+
+id=`Getids $1 | sed 1q`
+
+# Reasonable default
+if [ -z "$id" ]; then
+	exec cat
+fi
+
+echo -n , | 9p write acme/$id/addr
+exec 9p write acme/$id/data

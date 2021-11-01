@@ -1,0 +1,45 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [-g] [-a|id|pattern]
+
+DESCRIPTION
+	$p renames an identifier in current selection of the
+	windows pointed by [-a|id|pattern], forwarded to Getids,
+	thus defaulting to \$winid (default window), using the
+	famous sam(1) idiom described in sam_tut.pdf.
+
+	If -g is selected, adjust current selection to cover the
+	whole files (,).
+EOF
+	exit 0
+fi
+
+g=
+
+if [ "$1" = "-g" ]; then
+	g=,
+	shift
+fi
+
+if [ -z "$2" ]; then
+	echo `basename $0` '[-g] <from> <to> [windows]' >&2
+	exit 1
+fi
+
+dots=`echo -n $1 | sed 's/././g;s/$/./'`
+
+cmd="Edit ${g}x/[a-zA-Z0-9]+/g/$1/v/$dots/c/$2/"
+
+Getids $3 | while read x; do
+	Do "$cmd" $x
+done

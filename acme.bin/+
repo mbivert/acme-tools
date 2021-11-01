@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+
+DESCRIPTION
+	$p indents text from stdin by prepending a tab to
+	every line; resulting output on stdout.
+EOF
+	exit 0
+fi
+
+exec /bin/sed '/^./ s/^/	/g'

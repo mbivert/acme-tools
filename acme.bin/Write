@@ -1,0 +1,44 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p <file> <data> [-a|id|pattern]
+
+DESCRIPTION
+	$p writes data to buffer's special file (ctl/addr/body/data, etc.),
+	for all files pointed by [-a|id|pattern], forwarded to Getids,
+	thus defaulting to \$winid (current window).
+
+EXAMPLES
+	# Deletes all existing windows.
+	(sh|tagline)\$ Write ctl delete '.*'
+
+	# Appends "hello" to current window's body
+	(sh|tagline)\$ Write body hello
+EOF
+	exit 0
+fi
+
+if [ -z "$1" ]; then
+	echo Write '<file> <data> [windows]' 1>&2
+	exit 1
+fi
+
+Getids $3 | while read x; do
+	# Don't run read/write +Errors/win(1)/+Buffer, etc.
+	f=$(basename `Getfn "$x"`)
+	if echo "$f" | /bin/grep -q '^[^a-zA-Z0-9]' && [ "$1" = "ctl" ]; then
+		if [ "$2" = "get" ] || [ "$2" = "put" ]; then
+			continue
+		fi
+	fi
+	echo -n "$2" | 9p write acme/$x/$1
+done

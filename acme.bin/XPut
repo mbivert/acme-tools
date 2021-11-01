@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [-a|id|pattern]
+
+DESCRIPTION
+	$p stores files pointed by [-a|id|pattern], forwarded to Getids,
+	thus defaulting to \$winid (current window).
+
+EXAMPLES
+	# Writes all windows
+	(sh|tagline)\$ XPut '.*'
+EOF
+	exit 0
+fi
+
+Write ctl put $*

@@ -1,0 +1,27 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [-a|id|pattern]
+
+DESCRIPTION
+	$p removes all content from the windows pointed by -a|id|pattern,
+	which is forwarded to Getids, thus defaulting to \$winid (current
+	window).
+EOF
+	exit 0
+fi
+
+# NOTE: The following would raise a warning in win(1) when running
+# Clear from within win(1):
+#	(win)% Write addr ,; Write data ''
+
+Do 'Edit ,d' $*

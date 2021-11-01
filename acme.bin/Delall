@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p
+
+DESCRIPTION
+	$p deletes all existing windows.
+EOF
+	exit 0
+fi
+
+Write ctl delete '.*'

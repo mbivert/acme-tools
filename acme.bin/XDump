@@ -1,0 +1,36 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p <session>
+
+DESCRIPTION
+	$p dumps current state to <session>. <session> is automatically
+	appended a .dump suffix if needed, and is stored as a file in
+	\$HOME/acme.dumps/
+EOF
+	exit 0
+fi
+
+d=$HOME/acme.dumps
+mkdir -p $d
+
+if [ -z "$1" ]; then
+	echo `basename $0` '<dumpfile>' >&2
+	exit 1
+fi
+
+f="$1"
+if ! echo "$f" | grep -q '\.dump$'; then
+	f=$d/$1.dump
+fi
+
+Do "Dump $f" -a

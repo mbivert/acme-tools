@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if ! pgrep plumber >/dev/null; then
+	9 plumber
+fi
+
+PATH=$HOME/acme.bin/:/bin/:$PATH
+EDITOR=E
+PAGER=cat
+
+export PATH
+export EDITOR
+export PAGER
+
+nohup acme -a -f $PLAN9/font/lucm/unicode.9.font $@ 2>&1 > /tmp/acme.nohup.out.$$ &

@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [-a|id|pattern]
+
+DESCRIPTION
+	$p removes buffers pointed by [-a|id|pattern], forwarded
+	to Getids, thus defaulting to \$winid (current window),
+	and related files from filesystems.
+EOF
+	exit 0
+fi
+
+Getfn $1 | while read x; do rm "$x"; done
+Write ctl delete $1

@@ -1,0 +1,27 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [-a|id|pattern]
+
+DESCRIPTION
+	$p prints the filenames of windows pointed by [-a|id|pattern],
+	which is forwarded to Getids, thus defaulting to \$winid
+	(current window).
+
+	This is a nice shortcut to avoid callers to handle multi-lines tag.
+EOF
+	exit 0
+fi
+Getids $1 | while read x; do
+	9p read acme/$x/tag | awk '{ printf("%s", $1); exit(0) }'
+	echo
+done

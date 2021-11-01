@@ -1,0 +1,62 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p <cmd> [-a|id|pattern]
+
+DESCRIPTION
+	$p runs a command <cmd> in the taglines of the windows pointed by
+	[-a|id|pattern], which is forwarded to Getids, thus defaulting to
+	\$winid (current window).
+
+	Similar to https://github.com/mkhl/cmd/blob/master/acme/acmeeval/main.go,
+	but written in sh(1), orthogonal with Getids's behavior (+Buffer
+	management, and X// like looping on filenames patterns.
+
+EXAMPLES
+	\$ Do 'Edit ,d' -a
+		Clear '+Buffer' window's body
+EOF
+	exit 0
+fi
+
+if [ -z "$1" ]; then exit 0; fi
+
+c="$1"
+m=`echo -n "$c" | wc -c`
+
+Getids $2 | while read x; do
+	t=`9p read acme/$x/tag | cut -d'|' -f2-`
+
+	# Undocumented in acme(4): don't automatically update
+	# menu so that it won't messes our offsets
+	Write ctl nomenu $x
+
+	# Empty tag
+	Write ctl cleartag $x
+
+	# Compute offset
+	n=`9p read acme/$x/tag | wc -c`
+
+	# Write command to tag
+	Write tag "$c" $x
+
+	# Execute command
+	o=`expr $n + $m`
+	echo Mx$n $o | 9p write acme/$x/event
+
+	# Reset tag
+	Write ctl cleartag $x
+	Write tag "$t" $x
+
+	# Restore automatic menu management
+	Write ctl menu $x
+done

@@ -1,0 +1,40 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p    <from> <to>
+	$p -r <to>   <from>
+
+DESCRIPTION
+	$p dumps current state to from and loads the state described
+	by to.
+EOF
+	exit 0
+fi
+
+r=
+if [ "$1" = "-r" ]; then
+	r=1; shift
+fi
+
+if [ -z "$2" ]; then
+	echo `basename $0` '   <from> <to>'   >&2
+	echo `basename $0` '-r <to>   <from>' >&2
+	exit 1
+fi
+
+f="$1"; t="$2"
+if [ -n "$r" ]; then
+	f="$2"; t="$1"
+fi
+
+XDump "$f"
+XLoad "$t"

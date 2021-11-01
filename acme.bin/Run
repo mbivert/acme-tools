@@ -1,0 +1,122 @@
+#!/bin/sh
+
+# Magic script. Run current windows:
+#	- Put all files
+#	- Clean output window
+#	- Execute current window. You may want to extend the script
+#	  to fit your needs.
+#	- Write command stdout/stderr to output window
+#	- Defaulting to +Buffer
+#
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [-t [-a|id|pattern]] [-e [-a|id|pattern]] [-m] [args]
+	$p [-o [-a|id|pattern]]                      [-m] [args]
+
+DESCRIPTION
+	$p is a smart script running a command automagically deduced
+	from filename, redirecting its stdout/stderr to the buffers
+	pointed by -t/-e/-o, after having written all buffers.
+
+	User is expected to complete/adjust this script following
+	his need.
+
+	The buffers are automatically cleaned before hand.
+
+	-t selects stdout buffer, forwarding [-a|id|pattern] to Getids
+	-t selects stderr buffer, forwarding [-a|id|pattern] to Getids
+
+	-o is a shortcut to set both -t and -e.
+
+	-m will force the use of a Makefile by going up to / from current
+	buffer's file location until a Makefile is found.
+
+EXAMPLES
+	By default, on a buffer pointing to a Makefile, 'Run tests' will:
+		- Put all buffers
+		- Run 'make tests', redirecting stdin/stdout to '+Buffer', creating
+		  it if necessary, and cleaning it beforehand.
+EOF
+	exit 0
+fi
+
+# XXX This is redundant with Exec, but so far needed
+# because of $cmd's use of $@.
+while getopts "t:e:o:m" opt; do
+	case "$opt" in
+	t) to=$OPTARG ;;
+	e) err=$OPTARG ;;
+	o) to=$OPTARG; err=$OPTARG ;;
+	m) mk=1
+	esac
+done
+
+shift $((OPTIND-1))
+
+if [ -z "$to" ];  then to=-a;  fi
+if [ -z "$err" ]; then err=-a; fi
+
+fn=`Getfn`
+
+# Forced make(1)
+if [ -n "$mk" ]; then
+	d=$fn
+	while [ "$d" != "/" ]; do
+		if [ -f "$d/Makefile" ] || [ -f "$d/makefile" ]; then
+			# NOTE: we're not using make -C as we really do want
+			# to be in $d for +Buffer's automatic $PWD to be relative
+			# to the Makefile we're about to execute (e.g. for relative
+			# compilation error messages to point to the proper place).
+			#
+			# -C would work but be redundant with the cd(1).
+			cd $d
+			cmd="make $@"
+			break
+		fi
+		d=`dirname $d`
+	done
+	if [ -z "$cmd" ]; then
+		echo "No Makefile found from" `dirname $fn`
+		exit 1
+	fi
+
+# make(1)
+elif [ -f "$fn/Makefile" ] || [ `basename $fn` = "Makefile" ]; then
+	cmd="make $@"
+
+# Golang
+elif echo $fn | grep -q '\.go$'; then
+	cmd="go run $fn $@"
+
+# C
+elif echo $fn | grep -q '\.c$'; then
+	if [ -z "$CC" ]; then CC="cc -ansi -pedantic -Wall -Wextra"; fi
+	cmd="$CC $fn -o /tmp/a.out && /tmp/a.out $@"
+
+# Haskell
+elif echo $fn | grep -q '\.hs$'; then
+	cmd="ghc -Wno-tabs -o /tmp/a.out $fn && /tmp/a.out $@"
+
+# Scheme/racket
+elif echo $fn | grep -q '\.scm$' && awk 'BEGIN{n=1}NR==1&&/#!.*racket/{n=0}END{exit n}' $fn; then
+	cmd="racket $fn $@"
+
+# JavaScript
+elif echo $fn | grep -q '\.js$'; then
+	cmd="node $fn $@"
+
+# Assume executable script
+else
+	cmd="chmod +x $fn; set -f; $fn $@; set +f"
+fi
+
+XPutall && Exec -t $to -e $err "$cmd"
