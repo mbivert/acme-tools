@@ -1,3 +1,59 @@
+# Open @open
+A Open command that would:
+
+  - take multiple files as arguments;
+  - create them if needed;
+  - allow to open files by going up in the tree (e.g. "Open TODO.md"
+  would open $dir/TODO.md where $dir is either $CWD or the
+  $CWD's closest parent containing a TODO.md file).
+
+This may also be implementable through plumber.
+
+# XDump accumulating in main tagline @many-xdump-tagline
+To be tested, but likely, XDump stores many "XDump" in
+the dump file's tagline. If so, we could/should trim
+them.
+
+See also @auto-xdump-file.
+
+# Rename bug [] @rename-bug-non-standard-chars
+Rename breaks e.g. if string to rename contains [].
+
+# Acme -l to look for in $HOME/acme.dumps/ @acme-dump-semantic
+./Acme could wrap -l as such:
+
+  - if dump file isn't found, try to look for it in $HOME/acme.dumps/
+  instead
+
+# Automatic dump file naming @auto-xdump-file
+Perhaps we could store "somewhere" a special token, "xdump:<name>"
+to automatically name the dump files used by XDump?
+
+# XPutall wrong exit code @xputall-exit-code
+To be tested: "XPutall && echo ok" should fail when at least one
+file cannot be written to.
+
+# Shortcuts @shortcuts
+The ability to register a few convenient shortcuts without
+hacking .c code would be helpful. ^L on win(1)dows would be
+a good testbed.
+
+We can retrieve current window through
+
+  9p read acme/log | awk '$2 == "focus" { print $1 }'
+
+See https://github.com/fhs/acme-lsp/blob/v0.10.0/cmd/acmefocused/main.go,
+and more generally, https://github.com/fhs/acme-lsp
+
+Could be started from gits/acme-tools/Acme, always writing last
+ID to some well-known location. Then we could rely on
+[xbindkeys](http://www.nongnu.org/xbindkeys/xbindkeys.html) to
+actually handle the shortcut.
+
+# LookWin @lookwin
+A LookWin command that would look for the first window matching
+a given pattern and select it/place the cursor on it (do-able?)
+
 # document base.dump @base.dump-doc #minor
 cf. acme.bin/XLoad; also XLoad -l
 
@@ -21,7 +77,8 @@ Perhaps we could also watch for events targeting a +Errors
 window and automatically redirect all that to +Buffer?
 
 Current solution is mostly to prefix commands with a Exec,
-e.g. `Exec 9 man ls`
+e.g. `Exec 9 man ls`; we barely have a need for +Errors
+windows anymore.
 
 # Single window directory navigation @single-window-dir-nav #medium
 See.c is an example of a solution, but perhaps we could
@@ -29,6 +86,12 @@ experiment with other techniques.
 
 For instance, watching for special events, or relying on plumbing
 rules.
+
+Or assuming this is technically possible, a shortcut like ctrl-click that would:
+
+  - when performed in body, append selected text to window's current
+  location
+  - when performed on tag, replace window's current location
 
 Again, the goal is to reduce noise/number of opened window while
 keeping a fluid workflow.
