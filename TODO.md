@@ -1,14 +1,3 @@
-# Open @open
-A Open command that would:
-
-  - take multiple files as arguments;
-  - create them if needed;
-  - allow to open files by going up in the tree (e.g. "Open TODO.md"
-  would open $dir/TODO.md where $dir is either $CWD or the
-  $CWD's closest parent containing a TODO.md file).
-
-This may also be implementable through plumber.
-
 # XDump accumulating in main tagline @many-xdump-tagline
 To be tested, but likely, XDump stores many "XDump" in
 the dump file's tagline. If so, we could/should trim

@@ -1,0 +1,67 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [-m] [-p] [path/to/file, ...]
+
+DESCRIPTION
+	Open given files to acme if any, creating them as an empty files
+	if necessary.
+
+	If -m is specified, move back to / and open the first file
+	that match given name. Note that this mimick Run's -m behavior,
+	hence the option's name.
+
+	If -p is specified, print opened files' acme windows' IDs,
+	one per line.
+EOF
+	exit 0
+fi
+
+up=
+print=
+while getopts "mp" opt; do
+	case "$opt" in
+	m) up=1;;
+	p) print=1;;
+	esac
+done
+
+shift $((OPTIND-1))
+
+for i in "$@"; do
+	# NOTE: we have the same loop in Run.
+	if [ -n "$up" ]; then
+		d=$PWD
+		while [ "$d" != "/" ]; do
+			if [ -f "$d/$i" ] || [ -f "$d/$i" ]; then
+				i="$d/$i"
+				break
+			fi
+			d=`dirname $d`
+		done
+	else
+		i="$PWD/$i"
+	fi
+	if [ ! -f "$i" ]; then touch "$i"; fi
+
+	echo "name $i" | 9p write acme/new/ctl
+	x=`echo $i | sed 's,/,\\\/,g'`
+
+	# Look for last one in case file is already opened,
+	# relying on Getids's IDs sorting.
+	# (XXX this should break once we reached INT_MAX or
+	# similar)
+	id=`Getids "$x" | sed -n '$p'`
+	Write ctl get $id
+
+	if [ -n "$print" ]; then echo $id; fi
+done
