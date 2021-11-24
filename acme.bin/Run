@@ -114,6 +114,10 @@ elif echo $fn | grep -q '\.scm$' && awk 'BEGIN{n=1}NR==1&&/#!.*racket/{n=0}END{e
 elif echo $fn | grep -q '\.js$'; then
 	cmd="node $fn $@"
 
+# Python
+elif echo $fn | grep -q '\.py$'; then
+	cmd="python $fn $@"
+
 # Assume executable script
 else
 	cmd="chmod +x $fn; set -f; $fn $@; set +f"
