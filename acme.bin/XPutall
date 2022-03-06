@@ -19,4 +19,11 @@ EOF
 	exit 0
 fi
 
-Write ctl put '.*'
+# Simpler, but this triggers e.g. useless hugo(1) rebuilds
+# Write ctl put '.*'
+
+# Grab IDs of windows that aren't directories ($4) and
+# that are marked as dirty ($5)
+9p read acme/index | awk '$4 != 1 && $5 == "1" { print $1 }' | while read x; do
+	XPut $x
+done

@@ -5,6 +5,10 @@ them.
 
 See also @auto-xdump-file.
 
+# Open -m directories @open-dir-support
+E.g. `Open -m static(/)` could climb up to / and open
+the first occurence of it.
+
 # Rename bug [] @rename-bug-non-standard-chars
 Rename breaks e.g. if string to rename contains [].
 
