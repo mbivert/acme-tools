@@ -5,6 +5,14 @@ them.
 
 See also @auto-xdump-file.
 
+# optional/configurable autodump @autodump-Acme
+Allow automatic reload of autodump in Acme on startup.
+Allow autodump period configuration
+Allow to disable autodump on startup.
+Document in README.md
+
+Perhaps have autodump in an external script.
+
 # Open -m directories @open-dir-support
 E.g. `Open -m static(/)` could climb up to / and open
 the first occurence of it.

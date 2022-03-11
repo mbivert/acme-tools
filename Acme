@@ -13,3 +13,17 @@ export EDITOR
 export PAGER
 
 nohup acme -a -f $PLAN9/font/lucm/unicode.9.font $@ 2>&1 > /tmp/acme.nohup.out.$$ &
+pid=$!
+
+# Automatically dump to ~/acme.dumps/autodump.dump
+# every 10min; useful on crashes, battery depleted, etc.
+n=`expr 10 '*' 60`
+while true; do
+	sleep $n
+
+	# acme's dead
+	if ! ps -p $pid >/dev/null; then
+		exit 0
+	fi
+	XDump autodump
+done &
