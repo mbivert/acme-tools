@@ -5,6 +5,21 @@ them.
 
 See also @auto-xdump-file.
 
+# Do : option to avoid updating +Buffer directory @do-no-chdir
+Or at least a mechanism so that our autodump mechanism
+(XDump) restores it after the dump.
+
+# Persistent Run/Exec on Switch @keep-exec-on-switch
+Existing Run outputing in a given +Buffer seems to
+die out of +Buffer being deleted/recreated on a Switch.
+
+Simplest way would be to make +Buffer permanent in XLoad(/Delall),
+but this wouldn't solve the issue in the general case.
+
+Another option would be that all Exec would register/tag their
+output windows, so that Delall wouldn't delete them. (e.g.
+/tmp/+Buffer -> /tmp/+Keep+Buffer).
+
 # optional/configurable autodump @autodump-Acme
 Allow automatic reload of autodump in Acme on startup.
 Allow autodump period configuration
@@ -12,6 +27,25 @@ Allow to disable autodump on startup.
 Document in README.md
 
 Perhaps have autodump in an external script.
+
+# Ad-hoc buttons/scripts
+Have a file with two fields:
+
+  <regexp> <script>
+
+When opening a file matching regexp, append to its tagline
+the second field (ad-hoc script name)
+
+Have a way to automatically create ad-hoc script and add them
+to the previous file. E.g.
+
+AddButton QTests 'XPutall && Exec go test -v *.go':
+	- creates an ad-hoc QTests executable scripts in ~/acme.ad-hoc/,
+	which is added to the $PATH in ./Acme
+	- error if script name already exists
+	- add line "^$%$ QTests" to ~/.acme.ad-hoc
+	- eventually, clean the tag of the corresponding window
+	to include QTests instead of the full line
 
 # Open -m directories @open-dir-support
 E.g. `Open -m static(/)` could climb up to / and open
