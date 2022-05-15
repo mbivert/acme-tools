@@ -118,6 +118,16 @@ elif echo $fn | grep -q '\.js$'; then
 elif echo $fn | grep -q '\.py$'; then
 	cmd="python $fn $@"
 
+# LaTeX
+elif echo $fn | grep -q '\.tex$'; then
+	# XXX/TODO: if there are multiple xpdf opened, ctrl+r
+	# is only sent to one of them, so narrow the search to
+	# the one likely to match our current file.
+#	update="xdotool search --onlyvisible --class Xpdf key ctrl+r"
+	pdf=`basename $fn .tex`.pdf
+	update="xdotool search --onlyvisible --name '.*$pdf' key ctrl+r"
+	cmd="pdflatex $fn $@ && pdflatex $fn $@ && pdflatex $fn $@ && $update"
+
 # Assume executable script
 else
 	cmd="chmod +x $fn; set -f; $fn $@; set +f"
