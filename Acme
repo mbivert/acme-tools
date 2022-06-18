@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# NOTE: default plumb rules file is $HOME/lib/plumbing
+# (see e.g. plumb(7))
 if ! pgrep plumber >/dev/null; then
 	9 plumber
 fi

@@ -1,0 +1,105 @@
+#!/bin/sh
+
+set -e
+
+n=10
+tmpd=/tmp/acme.autos/
+cmd=Run
+kill=
+start=1
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [-k] [cmd]
+	$p [-n seconds] [-r] [cmd]
+
+DESCRIPTION
+	$p will periodically run the given command from the tagline
+	where $p was started.
+
+	-n allows to specify a running period (default: $n seconds)
+	-k will kill either all automatic jobs associated with the concerned
+	window, or all the ones associated with the given command.
+	-r will first kill all automatic jobs associated with the given
+	command before (re)starting it
+
+	Unless for -k, where we look for all commands, cmd defaults
+	to "Run".
+
+EXAMPLES
+	Running 'Auto -n 5 -r "Run -- -k"' from a window will:
+
+		- kill all "Run -- -k" jobs associated to \$winid;
+		- run "Run -k" from the tagline every 5 seconds.
+
+	Running 'Auto' from a window will:
+
+		- Execute 'Run' from that tagline every 10 seconds.
+EOF
+	exit 0
+fi
+
+# XXX This is redundant with Exec, but so far needed
+# because of $cmd's use of $@.
+while getopts n:kr x; do
+	case $x in
+	n) n=$OPTARG ;;
+	k) kill=1; start=; cmd=;;
+	r) kill=1; start=1 ;;
+	esac
+done
+
+shift `expr $OPTIND - 1`
+
+if [ -n "$1" ]; then
+	cmd="$1"
+fi
+
+stop() {
+	o="-F"
+	if [ -z "$2" ]; then
+		set -- "$1" "."
+		o=
+	fi
+
+	grep -l $o "$2" $tmpd/*.$1 2>/dev/null | while read x; do
+		if [ ! -e "$x" ]; then
+			break
+		fi
+		pid=`basename $x .$1`
+		if ps -p $pid >/dev/null 2>&1; then
+			kill $pid
+		fi
+		if ps -p $pid >/dev/null 2>&1; then
+			sleep 2
+			kill -9 $pid
+		fi
+		rm $x
+	done
+}
+
+start() {
+	while true; do
+		Do "$cmd" $1
+		sleep $n
+	done &
+	pid=$!
+	mkdir -p $tmpd
+	echo "$cmd" > $tmpd/$pid.$1
+}
+
+id=`Getids`
+
+if [ -n "$kill" ]; then
+	stop $id "$cmd"
+fi
+
+if [ -n "$start" ]; then
+	start $id "$cmd"
+fi

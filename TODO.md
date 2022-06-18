@@ -5,6 +5,17 @@ them.
 
 See also @auto-xdump-file.
 
+# Auto : crashes @auto-crash
+Recurrent acme crashes when using `Auto`:
+
+	$ cat /tmp/acme.nohup.out.*
+	acme: text.delete: Bad file descriptor
+	acme: text.delete: Success
+	acme: text.delete: Bad file descriptor
+	acme: text.delete: Bad file descriptor
+
+See `/home/mb/plan9port/src/cmd/acme/text.c:/"text.delete"`.
+
 # Do : option to avoid updating +Buffer directory @do-no-chdir
 Or at least a mechanism so that our autodump mechanism
 (XDump) restores it after the dump.
