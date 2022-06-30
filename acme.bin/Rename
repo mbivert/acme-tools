@@ -10,7 +10,7 @@ NAME
 
 SYNOPSYS
 	$p [-h]
-	$p [-g] [-a|id|pattern]
+	$p [-d dot] <from> <to> [-a|id|pattern]
 
 DESCRIPTION
 	$p renames an identifier in current selection of the
@@ -18,27 +18,40 @@ DESCRIPTION
 	thus defaulting to \$winid (default window), using the
 	famous sam(1) idiom described in sam_tut.pdf.
 
-	If -g is selected, adjust current selection to cover the
-	whole files (,).
+	By default, renaming is performed on the whole file (dot=,);
+	the -d option allows to narrow the scope by setting the
+	dot.
+
+EXAMPLE
+	Rename identifiers from "fs" to "ifs" on current window:
+		Rename fs ifs
+
+	Same, but perform renaming on current selection only:
+		Rename -d '' fs ifs
+		Rename -d .  fs ifs
+
+	Same, but on all opened C files/headers:
+		Rename -d . fs ifs '\.[ch]$'
+
 EOF
 	exit 0
 fi
 
-g=
+d=,
 
-if [ "$1" = "-g" ]; then
-	g=,
-	shift
+if [ "$1" = "-d" ]; then
+	d="$2"
+	shift; shift
 fi
 
 if [ -z "$2" ]; then
-	echo `basename $0` '[-g] <from> <to> [windows]' >&2
+	echo `basename $0` '[-d dot] <from> <to> [-a|id|pattern]' >&2
 	exit 1
 fi
 
 dots=`echo -n $1 | sed 's/././g;s/$/./'`
 
-cmd="Edit ${g}x/[a-zA-Z0-9]+/g/$1/v/$dots/c/$2/"
+cmd="Edit ${d}x/[a-zA-Z0-9]+/g/$1/v/$dots/c/$2/"
 
 Getids $3 | while read x; do
 	Do "$cmd" $x

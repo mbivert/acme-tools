@@ -279,7 +279,7 @@ small scripts allowing to load/dump current windows' states:
     
     SYNOPSYS
     	Rename [-h]
-    	Rename [-g] [-a|id|pattern]
+    	Rename [-d dot] <from> <to> [-a|id|pattern]
     
     DESCRIPTION
     	Rename renames an identifier in current selection of the
@@ -287,8 +287,21 @@ small scripts allowing to load/dump current windows' states:
     	thus defaulting to $winid (default window), using the
     	famous sam(1) idiom described in sam_tut.pdf.
     
-    	If -g is selected, adjust current selection to cover the
-    	whole files (,).
+    	By default, renaming is performed on the whole file (dot=,);
+    	the -d option allows to narrow the scope by setting the
+    	dot.
+    
+    EXAMPLE
+    	Rename identifiers from "fs" to "ifs" on current window:
+    		Rename fs ifs
+    
+    	Same, but perform renaming on current selection only:
+    		Rename -d '' fs ifs
+    		Rename -d .  fs ifs
+    
+    	Same, but on all opened C files/headers:
+    		Rename -d . fs ifs '\.[ch]$'
+    
 
 ## Rm
 
