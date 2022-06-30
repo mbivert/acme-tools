@@ -22,6 +22,11 @@ DESCRIPTION
 
 	If -p is specified, print opened files' acme windows' IDs,
 	one per line.
+
+	Paths starting with '/' are considered absolutely, otherwise,
+	relatively.
+
+	Nonexistent paths are created (mkdir(1) -p).
 EOF
 	exit 0
 fi
@@ -48,10 +53,14 @@ for i in "$@"; do
 			fi
 			d=`dirname $d`
 		done
-	else
+	elif ! echo "$i" | grep -q '^/'; then
 		i="$PWD/$i"
 	fi
-	if [ ! -f "$i" ]; then touch "$i"; fi
+
+	# Create dirname/file on disk if missing
+	d=`dirname $i`
+	if [ ! -d "$i" ]; then mkdir -p "$d"; fi
+	if [ ! -f "$i" ]; then touch "$i";    fi
 
 	echo "name $i" | 9p write acme/new/ctl
 	x=`echo $i | sed 's,/,\\\/,g'`
