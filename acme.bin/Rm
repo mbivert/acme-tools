@@ -15,10 +15,21 @@ SYNOPSYS
 DESCRIPTION
 	$p removes buffers pointed by [-a|id|pattern], forwarded
 	to Getids, thus defaulting to \$winid (current window),
-	and related files from filesystems.
+	and related files/directories from filesystems.
 EOF
 	exit 0
 fi
 
-Getfn $1 | while read x; do rm "$x"; done
+Getfn $1 | while read x; do
+	if [ -d "$x" ]; then
+		echo rmdir "$x"
+	elif [ -e "$x" ]; then
+		echo rm "$x"
+	fi
+done > /tmp/acme.Rm.$$
+
 Write ctl delete $1
+
+# sh(1) will warn around if current directory is removed
+sh /tmp/acme.Rm.$$
+cd /; rm /tmp/acme.Rm.$$
