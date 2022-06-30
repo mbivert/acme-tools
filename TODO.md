@@ -149,17 +149,18 @@ thus be able to craft special dump files allowing scriptable windows
 
 But at that point, we may want to just use Emacs™.
 
-# Rm fails if file does not exists @resiliant-rm #minor
-rm -f should do.
+# Rm: remove file and go up to /, removing empty directories @rm-up #small
+E.g. on a buffer ``/tmp/foo/bar.c``, if ``/tmp/foo/`` only contains
+``bar.c``, assuming ``/tmp/`` contains more than just ``foo/``,
+``Rm -r`` would remove:
 
-# Mv @mv #small
-Implement a Mv command similar to Rm:
+    - ``/tmp/foo/bar.c``;
+    - ``/tmp/foo/``.
 
-    Mv relative/path
-    Mv /absolute/path
-
-    Rename current buffer, automatically put new buffer
-    & remove previous name or mv filesystem.
+# Rm: recursive @rm-recursive #small
+By default, Rm on a directory only calls rmdir; we could have an
+option to be more efficient (Rm -f). See how it would interact
+with @rm-up.
 
 # Avoid double clean with Exec @exec-no-double-clean #minor
 We're a bit quick in Exec to avoid double cleaning. This

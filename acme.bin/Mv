@@ -20,18 +20,17 @@ DESCRIPTION
 	relatively instead of absolutely.
 
 	If to describes a missing path, intermediate directories
-	are created (mkdir(1) -p); file is written to disk (put),
-	existing file is overwritten (following mv(1)' semantic).
+	are created (mkdir(1) -p); existing file is overwritten,
+	following mv(1)' semantic.
 
 EXAMPLE
 	Rename from "/home/foo/bar.c" to "/home/foo/baz.c":
 		Mv /home/foo/baz.c
-
-	Or more simply:
 		Mv baz.c
 
 	Renaming "/tmp/bar/" to "/tmp/foo/":
 		Mv foo
+		Mv foo/
 
 BUGS:
 	We may want to allow regexp(7) with capture, so as to allow

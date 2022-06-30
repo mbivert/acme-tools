@@ -252,6 +252,40 @@ small scripts allowing to load/dump current windows' states:
     	Otherwise, assume argument is an awk(1) pattern, and display
     	all matching buffers IDs, one per line.
 
+## Mv
+
+    NAME
+    	Mv
+    
+    SYNOPSYS
+    	Mv [-h]
+    	Mv <to> [-a|id|pattern]
+    
+    DESCRIPTION
+    	Move (mv(1)) current file, or the one pointed by [-a|id|pattern],
+    	to the new one, updating acme's buffer's name accordingly.
+    
+    	If to doesn't start with a leading '/', renaming is performed
+    	relatively instead of absolutely.
+    
+    	If to describes a missing path, intermediate directories
+    	are created (mkdir(1) -p); existing file is overwritten,
+    	following mv(1)' semantic.
+    
+    EXAMPLE
+    	Rename from "/home/foo/bar.c" to "/home/foo/baz.c":
+    		Mv /home/foo/baz.c
+    		Mv baz.c
+    
+    	Renaming "/tmp/bar/" to "/tmp/foo/":
+    		Mv foo
+    		Mv foo/
+    
+    BUGS:
+    	We may want to allow regexp(7) with capture, so as to allow
+    	renaming multiple files/buffers at once.
+    
+
 ## Open
 
     NAME
@@ -271,6 +305,11 @@ small scripts allowing to load/dump current windows' states:
     
     	If -p is specified, print opened files' acme windows' IDs,
     	one per line.
+    
+    	Paths starting with '/' are considered absolutely, otherwise,
+    	relatively.
+    
+    	Nonexistent paths are created (mkdir(1) -p).
 
 ## Rename
 
@@ -315,7 +354,7 @@ small scripts allowing to load/dump current windows' states:
     DESCRIPTION
     	Rm removes buffers pointed by [-a|id|pattern], forwarded
     	to Getids, thus defaulting to $winid (current window),
-    	and related files from filesystems.
+    	and related files/directories from filesystems.
 
 ## Run
 
