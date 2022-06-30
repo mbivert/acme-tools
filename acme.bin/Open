@@ -43,11 +43,11 @@ done
 shift $((OPTIND-1))
 
 for i in "$@"; do
-	# NOTE: we have the same loop in Run.
+	# NOTE: we have a similar loop in Run.
 	if [ -n "$up" ]; then
 		d=$PWD
 		while [ "$d" != "/" ]; do
-			if [ -f "$d/$i" ] || [ -f "$d/$i" ]; then
+			if [ -f "$d/$i" ] || [ -d "$d/$i" ]; then
 				i="$d/$i"
 				break
 			fi
@@ -57,10 +57,14 @@ for i in "$@"; do
 		i="$PWD/$i"
 	fi
 
-	# Create dirname/file on disk if missing
-	d=`dirname $i`
-	if [ ! -d "$i" ]; then mkdir -p "$d"; fi
-	if [ ! -f "$i" ]; then touch "$i";    fi
+	# Create dirname on disk if missing
+	mkdir -p `dirname "$i"`
+
+	# $i is a new directory
+	if echo "$i" | grep -q '/$'; then mkdir -p "$i"; fi
+
+	# $i is a new file
+	if [ ! -f "$i" ] && [ ! -d "$i" ]; then touch "$i"; fi
 
 	echo "name $i" | 9p write acme/new/ctl
 	x=`echo $i | sed 's,/,\\\/,g'`
