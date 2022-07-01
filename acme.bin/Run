@@ -66,6 +66,7 @@ if [ -z "$to" ];  then to=-a;  fi
 if [ -z "$err" ]; then err=-a; fi
 
 fn=`Getfn`
+errp=cat
 
 # Forced make(1)
 if [ -n "$mk" ]; then
@@ -107,7 +108,8 @@ elif echo $fn | grep -q '\.hs$'; then
 	cmd="ghc -Wno-tabs -o /tmp/a.out $fn && /tmp/a.out $@"
 
 # Scheme/racket
-elif echo $fn | grep -q '\.scm$' && awk 'BEGIN{n=1}NR==1&&/#!.*racket/{n=0}END{exit n}' $fn; then
+# awk 'BEGIN{n=1}NR==1&&/#!.*racket/{n=0}END{exit n}' would work too
+elif echo $fn | grep -q '\.scm$' && ! sed -n '/^#!.*racket$/{q1}' $fn; then
 	cmd="racket $fn $@"
 
 # JavaScript
@@ -117,6 +119,12 @@ elif echo $fn | grep -q '\.js$'; then
 # Python
 elif echo $fn | grep -q '\.py$'; then
 	cmd="python $fn $@"
+
+# Perl
+elif echo $fn | grep -q '\.\(pl\|t\)$'; then
+	cmd="perl $fn $@"
+	# acme(1)/plumb(1) friendly output
+	errp='sed "s/ line \([0-9]\+\)/:\1/g"'
 
 # LaTeX
 elif echo $fn | grep -q '\.tex$'; then
@@ -131,6 +139,11 @@ elif echo $fn | grep -q '\.tex$'; then
 # Assume executable script
 else
 	cmd="chmod +x $fn; set -f; $fn $@; set +f"
+
+	# For shell scripts, acme(1)/plumb(1) friendly output
+	if ! sed -n '/^#.*sh$/{q1}' $fn; then
+		errp='sed "s/: line \([0-9]\+\)/:\1/g"'
+	fi
 fi
 
-XPutall && Exec -t $to -e $err "$cmd"
+XPutall && Exec -t "$to" -e "$err" -q "$errp" "$cmd"

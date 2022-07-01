@@ -4,14 +4,15 @@ set -e
 
 if [ "$1" = "-h" ] && [ "$2" = "" ]; then
 	p=`basename $0`
+	s=`echo "$p" | sed 's/./ /g'`
 	cat <<EOF
 NAME
 	$p
 
 SYNOPSYS
 	$p [-h]
-	$p [-t [-a|id|pattern]] [-e [-a|id|pattern]] <cmd>
-	$p [-o [-a|id|pattern]] <cmd>
+	$p [-t [-a|id|pattern]] [-e [-a|id|pattern]]<cmd>
+	$s [-o [-a|id|pattern]] [-p outp] [-q errp] [-r both] <cmd>
 
 DESCRIPTION
 	$p runs a command, sending stdout/stderr to acme buffers,
@@ -23,15 +24,28 @@ DESCRIPTION
 	-t selects stderr buffer, forwarding [-a|id|pattern] to Getids
 
 	-o is a shortcut to set both -t and -e.
+
+	-p and -q allows to pipe stdout/stderr through the given shell
+	commands, before forwarding the result to To, which will be in
+	charge of writing the content to an acme(1) buffer.
+
+	-r allows to set both outp and errp at once.
+
 EOF
 	exit 0
 fi
 
-while getopts "t:e:o:" opt; do
+outp=cat
+errp=cat
+
+while getopts "t:e:o:p:q:r:" opt; do
 	case "$opt" in
 	t) to=$OPTARG ;;
 	e) err=$OPTARG ;;
 	o) to=$OPTARG; err=$OPTARG ;;
+	p) outp="$OPTARG" ;;
+	q) errp="$OPTARG" ;;
+	r) outp="$OPTARG"; errp="$OPTARG" ;;
 	esac
 done
 
@@ -41,7 +55,7 @@ if [ -z "$to" ];  then to=-a;  fi
 if [ -z "$err" ]; then err=-a; fi
 
 if [ -z "$1" ]; then
-	echo "Exec [-t stdout] [-e stderr] [-o both] <command>" | To $err
+	echo "Exec [-t stdout] [-e stderr] [-o both] [-p outp] [-q errp] [-r both] <command>" | To $err
 	exit 1
 fi
 
@@ -50,9 +64,13 @@ fi
 #
 # We're comparing pointers, but good enough in practice.
 if [ "$err" = "$to" ]; then
-	eval "$*" </dev/stdin 2>&1 | To $to
+	{
+		{
+			eval "$*" </dev/stdin 2>&3 | eval "$outp"
+		} 3>&1 | eval "$errp"
+	} | To $to
 else
 	{
-		eval "$*" </dev/stdin 2>&3 | To $to
-	} 3>&1 | To $err
+		eval "$*" </dev/stdin 2>&3 | eval "$outp" | To $to
+	} 3>&1 | eval "$errp" | To $err
 fi

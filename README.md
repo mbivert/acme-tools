@@ -182,8 +182,8 @@ small scripts allowing to load/dump current windows' states:
     
     SYNOPSYS
     	Exec [-h]
-    	Exec [-t [-a|id|pattern]] [-e [-a|id|pattern]] <cmd>
-    	Exec [-o [-a|id|pattern]] <cmd>
+    	Exec [-t [-a|id|pattern]] [-e [-a|id|pattern]]<cmd>
+    	     [-o [-a|id|pattern]] [-p outp] [-q errp] [-r both] <cmd>
     
     DESCRIPTION
     	Exec runs a command, sending stdout/stderr to acme buffers,
@@ -195,6 +195,13 @@ small scripts allowing to load/dump current windows' states:
     	-t selects stderr buffer, forwarding [-a|id|pattern] to Getids
     
     	-o is a shortcut to set both -t and -e.
+    
+    	-p and -q allows to pipe stdout/stderr through the given shell
+    	commands, before forwarding the result to To, which will be in
+    	charge of writing the content to an acme(1) buffer.
+    
+    	-r allows to set both outp and errp at once.
+    
 
 ## Getall
 
