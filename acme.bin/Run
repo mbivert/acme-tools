@@ -136,6 +136,10 @@ elif echo $fn | grep -q '\.tex$'; then
 	update="xdotool search --onlyvisible --name '.*$pdf' key ctrl+r"
 	cmd="pdflatex $fn $@ && pdflatex $fn $@ && pdflatex $fn $@ && $update"
 
+# Man pages
+elif echo $fn | grep -q '[1-9]$'; then
+	cmd="man $fn"
+
 # Assume executable script
 else
 	cmd="chmod +x $fn; set -f; $fn $@; set +f"
