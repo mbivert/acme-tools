@@ -109,7 +109,7 @@ elif echo $fn | grep -q '\.hs$'; then
 
 # Scheme/racket
 # awk 'BEGIN{n=1}NR==1&&/#!.*racket/{n=0}END{exit n}' would work too
-elif echo $fn | grep -q '\.scm$' && ! sed -n '/^#!.*racket$/{q1}' $fn; then
+elif ! sed -n '/^#!.*racket$/{q1}' $fn; then
 	cmd="racket $fn $@"
 
 # JavaScript
