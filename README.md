@@ -300,7 +300,7 @@ small scripts allowing to load/dump current windows' states:
     
     SYNOPSYS
     	Open [-h]
-    	Open [-m] [-p] [path/to/file, ...]
+    	Open [-m] [-p] [-x] [path/to/file, ...]
     
     DESCRIPTION
     	Open given files to acme if any, creating them as an empty files
@@ -312,6 +312,9 @@ small scripts allowing to load/dump current windows' states:
     
     	If -p is specified, print opened files' acme windows' IDs,
     	one per line.
+    
+    	If -x is specified, a chmod +x on the file is automatically
+    	performed.
     
     	Paths starting with '/' are considered absolutely, otherwise,
     	relatively.

@@ -10,7 +10,7 @@ NAME
 
 SYNOPSYS
 	$p [-h]
-	$p [-m] [-p] [path/to/file, ...]
+	$p [-m] [-p] [-x] [path/to/file, ...]
 
 DESCRIPTION
 	Open given files to acme if any, creating them as an empty files
@@ -23,6 +23,9 @@ DESCRIPTION
 	If -p is specified, print opened files' acme windows' IDs,
 	one per line.
 
+	If -x is specified, a chmod +x on the file is automatically
+	performed.
+
 	Paths starting with '/' are considered absolutely, otherwise,
 	relatively.
 
@@ -33,10 +36,12 @@ fi
 
 up=
 print=
-while getopts "mp" opt; do
+exec=
+while getopts "mpx" opt; do
 	case "$opt" in
 	m) up=1;;
 	p) print=1;;
+	x) exec=1;;
 	esac
 done
 
@@ -65,6 +70,9 @@ for i in "$@"; do
 
 	# $i is a new file
 	if [ ! -f "$i" ] && [ ! -d "$i" ]; then touch "$i"; fi
+
+	# automatic chmod +x
+	if [ -n "$exec" ]; then chmod +x "$i"; fi
 
 	echo "name $i" | 9p write acme/new/ctl
 	x=`echo $i | sed 's,/,\\\/,g'`
