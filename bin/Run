@@ -117,8 +117,10 @@ elif echo $fn | grep -q '\.js$'; then
 	cmd="node $fn $@"
 
 # Python
-elif echo $fn | grep -q '\.py$'; then
+elif echo $fn | grep -q '\.py$' || ! sed -n '/^#!.*python/{q1}' $fn ; then
 	cmd="python $fn $@"
+	# acme(1)/plumb(1) friendly output
+	errp='sed "s/\", line \([0-9]\+\)/:\1/g"'
 
 # Perl
 elif echo $fn | grep -q '\.\(pl\|t\)$'; then
