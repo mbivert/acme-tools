@@ -1,21 +1,38 @@
+# Default installation directory.
+#	make install dir=$HOME/bin
+dir ?= /bin/
+root ?= root
+group ?= root
+
+.PHONY: all
+all: bin/See
+
 .PHONY: help
 help:
-	@echo 'install:    install acme.bin/ to $$HOME/acme.bin/ and Acme to $$HOME/bin/Acme'
-	@echo "update-doc: update README.md from inline acme.bin/* documentation"
+	@echo 'install dir=... group=... root=...'
+	@echo '            install bin/* to $dir (default /bin/);'
+	@echo '            default owner:group is root:root'
+	@echo 'uninstall dir=...'
+	@echo '            uninstall bin/* from $dir (default: /bin/)'
+	@echo 'update-doc: update README.md from inline bin/* doc'
+
+bin/See: See.c
+	@echo Compiling See...
+	@9c See.c && 9l See.o -o bin/See && rm See.o
 
 .PHONY: install
-install:
-	@echo 'Installing acme.bin to $$HOME/acme.bin/'
-	@if [ ! -d ${HOME}/acme.bin ]; then mkdir ${HOME}/acme.bin; fi
-	@cp acme.bin/* ${HOME}/acme.bin/
-	@chmod +x ${HOME}/acme.bin/* ${HOME}/bin/Acme
-	@echo 'Installing Acme to $$HOME/bin/'
-	@cp Acme ${HOME}/bin/
-	@chmod +x ${HOME}/bin/Acme
+install: bin/See
+	@echo "Installing bin/* to ${dir}/..."
+	@for x in bin/*; do \
+		install -o ${root} -g ${group} -m 755 $$x ${dir}/`basename $$x`; \
+	done
 
+.PHONY: uninstall
+uninstall:
+	@echo "Removing all bin/* from ${dir}/..."
+	@for x in bin/*; do echo rm -f ${dir}/`basename $$x`; done
+
+.PHONY: update-doc
 update-doc:
-	@echo Updating README.md to include inline documentation...
-	@cp README.md /tmp/README.backup.$$
-	@sed '/^# Tools/q' ./README.md > /tmp/README.$$
-	@for x in ./acme.bin/*; do echo '##' `basename $$x`;echo;sh $$x -h | sed 's/^/    /';echo;done >> /tmp/README.$$
-	@mv /tmp/README.$$ ./README.md
+	@echo 'Updating README.md to include inline documentation...'
+	@sh ./update-doc '^# Tools' ./README.md ./bin/

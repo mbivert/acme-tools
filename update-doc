@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" == "-h" ] || [ -z "$3" ]; then
+	echo 'update-doc <regex> <path/to/README.md> <path/to/bin/>'
+	exit 0
+fi
+
+re="$1"
+fn="$2"
+bin="$3"
+
+PATH=$PATH:$bin
+
+tmpfn=`mktemp /tmp/update-doc-XXXXXX`
+sed "/$re/q" $fn > $tmpfn
+for x in bin/*; do
+	if [ ! -e "$x" ]; then break; fi
+	echo '##' `basename $x`; echo
+	sh $x -h | sed 's/^/    /g';
+	echo
+done >> $tmpfn
+
+cp $fn /tmp/README.md.backup
+cp $tmpfn $fn
+
+rm $tmpfn
