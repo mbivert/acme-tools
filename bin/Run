@@ -97,7 +97,23 @@ elif [ -f "$fn/Makefile" ] || [ `basename $fn` = "Makefile" ]; then
 	cmd="make $@"
 
 # Golang
+#
 elif echo $fn | grep -q '\.go$'; then
+# NOTE: The following in addition to $fn, use all .go files in
+# $fn's directory that aren't _test.go files and which do not
+# contain a main(). This is clumsy, but may prove useful at some
+# point.
+#	# (extra file for while's subshell)
+#	tmpfn=`mktemp /tmp/Run.XXXXXX`
+#	ls `dirname $fn`/*.go | grep -v '_test\.go$' | grep -v "^$fn\$" | while read x; do
+#		if grep -qv '^func[ \t]+main' "$x"; then
+#			echo $x >> $tmpfn
+#		fi
+#	done
+#	echo $fn >> $tmpfn
+#	cmd="go run $(cat $tmpfn | tr -s '\n' ' ') $@"
+#	rm $tmpfn
+
 	cmd="go run $fn $@"
 
 # C
