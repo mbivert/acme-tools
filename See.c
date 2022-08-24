@@ -147,8 +147,6 @@ threadmain(int argc, char *argv[])
 {
 	Event e1, e2;
 
-	// cd requires win to be initialized first
-	win = newwin();
 	fwin = nil;
 
 	ARGBEGIN {
@@ -156,13 +154,17 @@ threadmain(int argc, char *argv[])
 		fwin = newwin();
 		break;
 	case 'h':
-		fprint(2, "%s [-n]\n", argv[0]);
+//		fprint(2, "%s [-n]\n", argv0);
+		fprint(1, "%s [-n]\n", argv0);
 		threadexitsall(nil);
 		break;
 	default:
 		print("unknown flag '%c'\n", ARGC());
 		break;
 	} ARGEND
+
+	// cd requires win to be initialized first
+	win = newwin();
 
 	// XXX $HOME set but not $home
 	putenv("home", getenv("HOME"));

@@ -18,7 +18,7 @@ sed "/$re/q" $fn > $tmpfn
 for x in bin/*; do
 	if [ ! -e "$x" ]; then break; fi
 	echo '##' `basename $x`; echo
-	sh $x -h | sed 's/^/    /g';
+	./$x -h | sed 's/^/    /g';
 	echo
 done >> $tmpfn
 

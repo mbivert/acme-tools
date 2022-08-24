@@ -1,12 +1,31 @@
 #!/bin/sh
 
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [args...]
+
+DESCRIPTION
+	$p is a basic wrapper to launch acme(1). It starts
+	the plumber if needed, set a few convenient environment
+	variable, and will periodically create a
+	$HOME/acme.dumps/autodump.dump using "XDump autodump".
+EOF
+	exit 0
+fi
+
+
 # NOTE: default plumb rules file is $HOME/lib/plumbing
 # (see e.g. plumb(7))
 if ! pgrep plumber >/dev/null; then
 	9 plumber
 fi
 
-PATH=$HOME/acme.bin/:/bin/:$PATH
 EDITOR=E
 PAGER=cat
 
