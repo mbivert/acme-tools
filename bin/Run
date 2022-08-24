@@ -1,14 +1,5 @@
 #!/bin/sh
 
-# Magic script. Run current windows:
-#	- Put all files
-#	- Clean output window
-#	- Execute current window. You may want to extend the script
-#	  to fit your needs.
-#	- Write command stdout/stderr to output window
-#	- Defaulting to +Buffer
-#
-
 set -e
 
 if [ "$1" = "-h" ] && [ "$2" = "" ]; then
@@ -23,12 +14,15 @@ SYNOPSYS
 	$p [-o [-a|id|pattern]]                      [-m] [args]
 
 DESCRIPTION
-	$p is a smart script running a command automagically deduced
-	from filename, redirecting its stdout/stderr to the buffers
+	$p is a smart script running a command automagically inferred
+	from file/filename, redirecting its stdout/stderr to the buffers
 	pointed by -t/-e/-o, after having written all buffers.
 
 	User is expected to complete/adjust this script following
-	his need.
+	his need. In particular, the \$errp variable allows to
+	pipe stderr to a command before sending to the error buffer
+	pointed by -e/-o: this can be used for instance to adjust
+	error messages to match plumbing rules.
 
 	The buffers are automatically cleaned before hand.
 
@@ -38,13 +32,21 @@ DESCRIPTION
 	-o is a shortcut to set both -t and -e.
 
 	-m will force the use of a Makefile by going up to / from current
-	buffer's file location until a Makefile is found.
+	buffer's directory, until a Makefile is found.
 
 EXAMPLES
-	By default, on a buffer pointing to a Makefile, 'Run tests' will:
+	1. By default, on a buffer pointing to a Makefile, 'Run tests' will:
 		- Put all buffers
 		- Run 'make tests', redirecting stdin/stdout to '+Buffer', creating
 		  it if necessary, and cleaning it beforehand.
+
+	2. If executing 'Run -m tests' on a file /home/user/project/lib/lib.go,
+	and if a /home/user/project/Makefile file exist, will use that
+	makefile in a 'make tests'.
+
+	3. With the default setup, 'Run -- -m x' on a .c file will compile
+	the C file (assuming single file project) and execute the resulting
+	binary with '-m x' as CLI arguments.
 EOF
 	exit 0
 fi
