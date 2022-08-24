@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [args...]
+
+DESCRIPTION
+	$p executes go doc with the given arguments. This
+	is a shortcut for:
+		$ Exec go doc [args...]
+
+EOF
+	exit 0
+fi
+
+exec Exec go doc $@
