@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+
+DESCRIPTION
+	$p unindents text from stdin by removing 3 heading tab from
+	every line; resulting output on stdout.
+EOF
+	exit 0
+fi
+
+exec sed 's/^			//'
