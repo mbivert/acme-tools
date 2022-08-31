@@ -152,8 +152,10 @@ elif echo $fn | grep -q '\.tex$'; then
 	# is only sent to one of them, so narrow the search to
 	# the one likely to match our current file.
 #	update="xdotool search --onlyvisible --class Xpdf key ctrl+r"
+	rpdf=`echo $fn | sed 's/\.tex$/.pdf/'`
 	pdf=`basename $fn .tex`.pdf
-	update="xdotool search --onlyvisible --name '.*$pdf' key ctrl+r"
+	# xdotool with exit with non-zero code when search fails
+	update="(xdotool search --onlyvisible --name '.*$pdf' key ctrl+r || xpdf $rpdf)"
 	cmd="pdflatex $fn $@ && pdflatex $fn $@ && pdflatex $fn $@ && $update"
 
 # Man pages
