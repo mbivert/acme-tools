@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [-a|id|pattern]
+
+DESCRIPTION
+	$p reads the body of the buffer pointed by [-a|id|pattern]
+	and prints it to stdout.
+
+EXAMPLES
+	Display '+Buffer's content on stdout:
+		Read -a
+
+	Look for a buffer suffixed by '+Files'' and displays its
+	content on stdout:
+		Read '\+Files'
+EOF
+	exit 0
+fi
+
+9p read acme/`Getids $1`/body

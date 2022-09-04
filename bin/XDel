@@ -1,0 +1,41 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [-a|id|pattern]
+
+DESCRIPTION
+	$p stores the content of the buffers pointed by [-a|id|pattern],
+	and then proceed to close the buffer, while storing
+	their filenames to the '+Files' buffer if necessary. The
+	'+Files' buffer is created is necessary.
+
+EOF
+	exit 0
+fi
+
+# NOTE: Open -u without -n will automatically store
+# potential changes to $fn. That is, if $fn is already
+# opened and altered, modifications will be saved.
+fn="$HOME/Files"
+f=`Open -u -p "$fn"`
+
+(
+	Getids "$1" | while read x; do
+		XPut $x
+		Getfn $x
+		echo -n del | 9p write acme/$x/ctl
+	done
+	Read $f
+) | sort -u | sed '/^[ \t]*$/d' > $fn
+
+# Update 'Files' buffer content
+Write ctl get $f

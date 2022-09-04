@@ -20,7 +20,7 @@ for x in bin/*; do
 	echo '##' `basename $x`; echo
 	./$x -h | sed 's/^/    /g';
 	echo
-done >> $tmpfn
+done | sed 's/^[ \t]*$//g' >> $tmpfn
 
 cp $fn /tmp/README.md.backup
 cp $tmpfn $fn

@@ -418,18 +418,25 @@ small scripts allowing to load/dump current windows' states:
 
     SYNOPSYS
     	Open [-h]
-    	Open [-m] [-p] [-x] [path/to/file, ...]
+    	Open [-m] [-n] [-p] [-u] [-x] <name> [pattern]
 
     DESCRIPTION
-    	Open given files to acme if any, creating them as an empty files
+    	Open given file with acme, creating it as an empty file
     	if necessary.
 
     	If -m is specified, move back to / and open the first file
     	that match given name. Note that this mimick Run's -m behavior,
     	hence the option's name.
 
+    	If -n is specified, the file nor its parent directory will
+    	be created on disk/loaded from disk.
+
     	If -p is specified, print opened files' acme windows' IDs,
     	one per line.
+
+    	If -u is specified, Open will only open the file if no buffer
+    	matches the given pattern. If no pattern is specified, the
+    	name will be used as a pattern instead.
 
     	If -x is specified, a chmod +x on the file is automatically
     	performed.
@@ -438,6 +445,35 @@ small scripts allowing to load/dump current windows' states:
     	relatively.
 
     	Nonexistent paths are created (mkdir(1) -p).
+
+    EXAMPLES
+    	The following will create a '+Buffer' window if there's no
+    	window with filename suffixed by +Buffer; this will be
+    	considered a "virtual" file, not tied to an on-disk file:
+
+    		Open -n -u '+Buffer' '\+Buffer$'
+
+
+## Read
+
+    NAME
+    	Read
+
+    SYNOPSYS
+    	Read [-h]
+    	Read [-a|id|pattern]
+
+    DESCRIPTION
+    	Read reads the body of the buffer pointed by [-a|id|pattern]
+    	and prints it to stdout.
+
+    EXAMPLES
+    	Display '+Buffer's content on stdout:
+    		Read -a
+
+    	Look for a buffer suffixed by '+Files'' and displays its
+    	content on stdout:
+    		Read '\+Files'
 
 ## Rename
 
@@ -587,6 +623,22 @@ small scripts allowing to load/dump current windows' states:
 
     	# Appends "hello" to current window's body
     	(sh|tagline)$ Write body hello
+
+## XDel
+
+    NAME
+    	XDel
+
+    SYNOPSYS
+    	XDel [-h]
+    	XDel [-a|id|pattern]
+
+    DESCRIPTION
+    	XDel stores the content of the buffers pointed by [-a|id|pattern],
+    	and then proceed to close the buffer, while storing
+    	their filenames to the '+Files' buffer if necessary. The
+    	'+Files' buffer is created is necessary.
+
 
 ## XDump
 

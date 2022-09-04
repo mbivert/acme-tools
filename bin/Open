@@ -10,18 +10,25 @@ NAME
 
 SYNOPSYS
 	$p [-h]
-	$p [-m] [-p] [-x] [path/to/file, ...]
+	$p [-m] [-n] [-p] [-u] [-x] <name> [pattern]
 
 DESCRIPTION
-	Open given files to acme if any, creating them as an empty files
+	Open given file with acme, creating it as an empty file
 	if necessary.
 
 	If -m is specified, move back to / and open the first file
 	that match given name. Note that this mimick Run's -m behavior,
 	hence the option's name.
 
+	If -n is specified, the file nor its parent directory will
+	be created on disk/loaded from disk.
+
 	If -p is specified, print opened files' acme windows' IDs,
 	one per line.
+
+	If -u is specified, $p will only open the file if no buffer
+	matches the given pattern. If no pattern is specified, the
+	name will be used as a pattern instead.
 
 	If -x is specified, a chmod +x on the file is automatically
 	performed.
@@ -30,38 +37,61 @@ DESCRIPTION
 	relatively.
 
 	Nonexistent paths are created (mkdir(1) -p).
+
+EXAMPLES
+	The following will create a '+Buffer' window if there's no
+	window with filename suffixed by +Buffer; this will be
+	considered a "virtual" file, not tied to an on-disk file:
+
+		Open -n -u '+Buffer' '\+Buffer$'
+
 EOF
 	exit 0
 fi
 
 up=
+nocreate=
 print=
+uniq=
 exec=
-while getopts "mpx" opt; do
+while getopts "mnpux" opt; do
 	case "$opt" in
 	m) up=1;;
+	n) nocreate=1;;
 	p) print=1;;
+	u) uniq=1;;
 	x) exec=1;;
 	esac
 done
 
 shift $((OPTIND-1))
 
-for i in "$@"; do
-	# NOTE: we have a similar loop in Run.
-	if [ -n "$up" ]; then
-		d=$PWD
-		while [ "$d" != "/" ]; do
-			if [ -f "$d/$i" ] || [ -d "$d/$i" ]; then
-				i="$d/$i"
-				break
-			fi
-			d=`dirname $d`
-		done
-	elif ! echo "$i" | grep -q '^/'; then
-		i="$PWD/$i"
-	fi
+if [ -z "$1" ]; then
+	echo `basename $0` '[-mnpux] <name> [pattern]'
+fi
 
+i="$1"
+p="$2"
+if [ -z "$2" ]; then
+	# XXX clumsy
+	p=`echo "$1" | sed 's,/,\\\/,g'`
+fi
+
+# NOTE: we have a similar loop in Run.
+if [ -n "$up" ]; then
+	d=$PWD
+	while [ "$d" != "/" ]; do
+		if [ -f "$d/$i" ] || [ -d "$d/$i" ]; then
+			i="$d/$i"
+			break
+		fi
+		d=`dirname $d`
+	done
+elif ! echo "$i" | grep -q '^/'; then
+	i="$PWD/$i"
+fi
+
+if [ -z "$nocreate" ]; then
 	# Create dirname on disk if missing
 	mkdir -p `dirname "$i"`
 
@@ -73,16 +103,36 @@ for i in "$@"; do
 
 	# automatic chmod +x
 	if [ -n "$exec" ]; then chmod +x "$i"; fi
+fi
 
+# uniq mode: don't open the buffer if one matching
+# the pattern is already opened
+if [ -n "$uniq" ]; then
+	x=`Getids "$p" | sed 1q`
+	if [ -z "$x" ]; then
+		echo "name $i" | 9p write acme/new/ctl
+	elif [ -z "$nocreate" ]; then
+		# buffer already exists, and is not
+		# a virtual file (nocreate unset):
+		# we're about to reload it from disk,
+		# but the buffer may have been altered:
+		# get Write ctl get $id would then "fail"
+		# with a warning, so instead, make sure
+		# the changes are pushed to disk
+		XPut $x
+	fi
+else
 	echo "name $i" | 9p write acme/new/ctl
-	x=`echo $i | sed 's,/,\\\/,g'`
+fi
 
-	# Look for last one in case file is already opened,
-	# relying on Getids's IDs sorting.
-	# (XXX this should break once we reached INT_MAX or
-	# similar)
-	id=`Getids "$x" | sed -n '$p'`
+# Look for last one in case file is already opened,
+# relying on Getids's IDs sorting.
+# XXX this'll break once we reached c. INT_MAX
+id=`Getids "$p" | sed -n '$p'`
+
+if [ -z "$nocreate" ]; then
 	Write ctl get $id
+fi
 
-	if [ -n "$print" ]; then echo $id; fi
-done
+if [ -n "$print" ]; then echo $id; fi
+

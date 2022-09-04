@@ -45,13 +45,9 @@ elif [ -z "$1" ]; then
 # -a (auto) : write to +Buffer
 elif [ "$1" = "-a" ]; then
 	# Ensure +Buffer exists. In case there are many, just keep one.
-	x=`Getids '\+Buffer$' | sed 1q`
-	if [ -z "$x" ]; then
-		echo 'name +Buffer' | 9p write acme/new/ctl
-	fi
+	x=`Open -n -p -u '+Buffer' '\+Buffer$'`
 
 	# Ensure +Buffer is prefixed with pwd (e.g. grep -n)
-	x=`Getids '\+Buffer$' | sed 1q`
 	echo 'name '`pwd`'/+Buffer' | 9p write acme/$x/ctl
 	echo $x
 
