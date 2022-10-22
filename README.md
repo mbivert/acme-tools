@@ -30,7 +30,7 @@ A convenient ``-m <target>`` option will execute ``make <target>`` in
 the first directory containing a ``Makefile``, starting from the current
 directory, and going up in the tree until it reaches ``/``. For instance, when:
 
-  - middle clicking ``Rum -m tests`` on the tagline of a
+  - middle clicking ``Run -m tests`` on the tagline of a
   file ``/home/user/gits/project/dir/subdir/foo.go``;
   - assuming a ``/home/user/gits/project/Makefile`` exists;
   - will run ``make tests`` in ``/home/user/gits/project/`` (of course,
@@ -44,18 +44,18 @@ directory, and going up in the tree until it reaches ``/``. For instance, when:
 [gh-mb-at-to]:            https://github.com/mbivert/acme-tools/blob/master/bin/To
 
 ## "+Buffer" window
-In practice, we found that having a single *+Errors* window, with automatic
+In practice, I've found that having a single *+Errors* window, with automatic
 content flushing, is more suitable than spanning one *+Errors* window per directory,
 with no flushing.
 
 *NOTE*: acme's default seem however most reasonable: better be verbose,
-and let the user filtrate as needed.
+and let the user filter as needed.
 
 By convention, we called this window the *+Buffer* window, being the
 only window whose name suffixed by *+Buffer*. Its access is automatically
 managed via the *Getids* command, described thereafter.
 
-We furthermore use that window's tagline for running global commands,
+This window's tagline can be used for running global commands,
 such as the session-related ones, also described later on.
 
 ## Getids
@@ -94,8 +94,8 @@ argument that is forwarded to *Getids*:
                   Do 'Edit ,d' -a
 
 ## XDump, XLoad, Switch (sessions)
-Again aiming at reducing windows proliferation, we provide three
-small scripts allowing to load/dump current windows' states:
+Again aiming at reducing windows proliferation, those three
+small scripts load/dump current windows' states:
 
     # Put all files and creates a dump file in
     # $HOME/acme.dumps/project42.dump with current state
