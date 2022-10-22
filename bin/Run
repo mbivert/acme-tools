@@ -164,7 +164,8 @@ elif echo $fn | grep -q '\.tex$'; then
 	fi
 	# xdotool with exit with non-zero code when search fails
 	update="(xdotool search --onlyvisible --name '.*$pdf' key ctrl+r || xpdf $rpdf)"
-	cmd="pdflatex $fn $@ && $bib && pdflatex $fn $@ && pdflatex $fn $@ && $update"
+	pl="pdflatex -shell-escape"
+	cmd="$pl $fn $@ && $bib && $pl $fn $@ && $pl $fn $@ && $update"
 
 # Man pages
 elif echo $fn | grep -q '[1-9]$'; then
