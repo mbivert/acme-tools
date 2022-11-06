@@ -106,7 +106,6 @@ if [ -n "$up" ]; then
 		d=`dirname $d`
 	done
 elif [ -n "$grep" ]; then
-	set -x
 	j=$(grep "$i" $fns | while read f; do
 		if [ -e "$f" ]; then
 			echo $f
@@ -118,7 +117,6 @@ elif [ -n "$grep" ]; then
 		exit 1
 	fi
 	i="$j"
-	set +x
 elif ! echo "$i" | grep -q '^/'; then
 	i="$PWD/$i"
 fi
