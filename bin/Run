@@ -167,6 +167,10 @@ elif echo $fn | grep -q '\.tex$'; then
 	pl="pdflatex -shell-escape"
 	cmd="$pl $fn $@ && $bib && $pl $fn $@ && $pl $fn $@ && $update"
 
+# Nix
+elif echo $fn | grep -q '\.nix$'; then
+	cmd="nix-instantiate --eval $fn"
+
 # Man pages
 elif echo $fn | grep -q '[1-9]$'; then
 	cmd="man $fn"
