@@ -428,23 +428,34 @@ small scripts load/dump current windows' states:
     	that match given name. Note that this mimick Run's -m behavior,
     	hence the option's name.
 
-    	If -n is specified, the file nor its parent directory will
+    	If -n is specified, nor the file nor its parent directory will
     	be created on disk/loaded from disk.
 
     	If -p is specified, print opened files' acme windows' IDs,
     	one per line.
 
     	If -u is specified, Open will only open the file if no buffer
-    	matches the given pattern. If no pattern is specified, the
-    	name will be used as a pattern instead.
+    	matches the given pattern (unique). If no pattern is specified,
+    	the name will be used as a pattern instead. If there's already
+    	a corresponding buffer opened, then some of it will be
+    	made visible by writing show its acme//ctl.
 
     	If -x is specified, a chmod +x on the file is automatically
     	performed.
+
+    	If -g is specified, the name is interpreted as a pattern
+    	to be grep(1)'d in $HOME/acme.files: the first existing
+    	file matching the pattern is opened. If no match, exit
+    	with failure. -g implies -u.
 
     	Paths starting with '/' are considered absolutely, otherwise,
     	relatively.
 
     	Nonexistent paths are created (mkdir(1) -p).
+
+    	Opened filenames are systematically added to $HOME/acme.files,
+    	which is cleaned via sort(1) -u, and only contains absolute
+    	paths.
 
     EXAMPLES
     	The following will create a '+Buffer' window if there's no

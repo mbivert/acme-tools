@@ -20,23 +20,34 @@ DESCRIPTION
 	that match given name. Note that this mimick Run's -m behavior,
 	hence the option's name.
 
-	If -n is specified, the file nor its parent directory will
+	If -n is specified, nor the file nor its parent directory will
 	be created on disk/loaded from disk.
 
 	If -p is specified, print opened files' acme windows' IDs,
 	one per line.
 
 	If -u is specified, $p will only open the file if no buffer
-	matches the given pattern. If no pattern is specified, the
-	name will be used as a pattern instead.
+	matches the given pattern (unique). If no pattern is specified,
+	the name will be used as a pattern instead. If there's already
+	a corresponding buffer opened, then some of it will be
+	made visible by writing show its acme/$id/ctl.
 
 	If -x is specified, a chmod +x on the file is automatically
 	performed.
+
+	If -g is specified, the name is interpreted as a pattern
+	to be grep(1)'d in \$HOME/acme.files: the first existing
+	file matching the pattern is opened. If no match, exit
+	with failure. -g implies -u.
 
 	Paths starting with '/' are considered absolutely, otherwise,
 	relatively.
 
 	Nonexistent paths are created (mkdir(1) -p).
+
+	Opened filenames are systematically added to \$HOME/acme.files,
+	which is cleaned via sort(1) -u, and only contains absolute
+	paths.
 
 EXAMPLES
 	The following will create a '+Buffer' window if there's no
@@ -49,18 +60,25 @@ EOF
 	exit 0
 fi
 
+fns=$HOME/acme.files
+if [ ! -f "$fns" ]; then
+	touch "$fns"
+fi
+
 up=
 nocreate=
 print=
 uniq=
 exec=
-while getopts "mnpux" opt; do
+grep=
+while getopts "mnpuxg" opt; do
 	case "$opt" in
 	m) up=1;;
 	n) nocreate=1;;
 	p) print=1;;
 	u) uniq=1;;
 	x) exec=1;;
+	g) grep=1; uniq=1;;
 	esac
 done
 
@@ -87,6 +105,20 @@ if [ -n "$up" ]; then
 		fi
 		d=`dirname $d`
 	done
+elif [ -n "$grep" ]; then
+	set -x
+	j=$(grep "$i" $fns | while read f; do
+		if [ -e "$f" ]; then
+			echo $f
+			break
+		fi
+	done)
+	if [ -z "$j" ]; then
+		echo "'$i' not found in $HOME/acme.files" 1>&2
+		exit 1
+	fi
+	i="$j"
+	set +x
 elif ! echo "$i" | grep -q '^/'; then
 	i="$PWD/$i"
 fi
@@ -121,9 +153,16 @@ if [ -n "$uniq" ]; then
 		# the changes are pushed to disk
 		XPut $x
 	fi
+	Write ctl show $x
 else
 	echo "name $i" | 9p write acme/new/ctl
 fi
+
+# update $HOME/acme.files
+tmp=`mktemp /tmp/acme.files.XXXXXX`
+(cat $fns; echo "$i";) > $tmp
+sort -u $tmp > $fns
+rm $tmp
 
 # Look for last one in case file is already opened,
 # relying on Getids's IDs sorting.
