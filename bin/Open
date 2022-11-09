@@ -10,7 +10,7 @@ NAME
 
 SYNOPSYS
 	$p [-h]
-	$p [-m] [-n] [-p] [-u] [-x] <name> [pattern]
+	$p [-m] [-n] [-p] [-u] [-x] [-g] <name> [pattern]
 
 DESCRIPTION
 	Open given file with acme, creating it as an empty file
@@ -141,17 +141,19 @@ if [ -n "$uniq" ]; then
 	x=`Getids "$p" | sed 1q`
 	if [ -z "$x" ]; then
 		echo "name $i" | 9p write acme/new/ctl
-	elif [ -z "$nocreate" ]; then
-		# buffer already exists, and is not
-		# a virtual file (nocreate unset):
-		# we're about to reload it from disk,
-		# but the buffer may have been altered:
-		# get Write ctl get $id would then "fail"
-		# with a warning, so instead, make sure
-		# the changes are pushed to disk
-		XPut $x
+	else
+		if [ -z "$nocreate" ]; then
+			# buffer already exists, and is not
+			# a virtual file (nocreate unset):
+			# we're about to reload it from disk,
+			# but the buffer may have been altered:
+			# get Write ctl get $id would then "fail"
+			# with a warning, so instead, make sure
+			# the changes are pushed to disk
+			XPut $x
+		fi
+		Write ctl show $x
 	fi
-	Write ctl show $x
 else
 	echo "name $i" | 9p write acme/new/ctl
 fi
