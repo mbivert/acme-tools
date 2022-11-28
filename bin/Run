@@ -34,6 +34,11 @@ DESCRIPTION
 	-m will force the use of a Makefile by going up to / from current
 	buffer's directory, until a Makefile is found.
 
+	As a convenience, the \$ARGS environment variable is feed to the
+	program called to execute/compile the target. By comparison, the
+	[args] are forwarded to the executed/compiled target. This allows
+	specifying ad-hoc options.
+
 EXAMPLES
 	1. By default, on a buffer pointing to a Makefile, 'Run tests' will:
 		- Put all buffers
@@ -47,6 +52,9 @@ EXAMPLES
 	3. With the default setup, 'Run -- -m x' on a .c file will compile
 	the C file (assuming single file project) and execute the resulting
 	binary with '-m x' as CLI arguments.
+
+	4. 'ARGS=--show-trace Run' on a .nix file will attempt to execute the
+	.nix file, launching the nix interpreter with '--show-trace'.
 EOF
 	exit 0
 fi
@@ -114,35 +122,35 @@ elif echo $fn | grep -q '\.go$'; then
 #	cmd="go run $(cat $tmpfn | tr -s '\n' ' ') $@"
 #	rm $tmpfn
 
-	cmd="go run $fn $@"
+	cmd="go run $ARGS $fn $@"
 
 # C
 elif echo $fn | grep -q '\.c$'; then
 	if [ -z "$CC" ]; then CC="cc -ansi -pedantic -Wall -Wextra"; fi
-	cmd="$CC $fn -o /tmp/a.out && /tmp/a.out $@"
+	cmd="$CC -o /tmp/a.out $ARGS $fn && /tmp/a.out $@"
 
 # Haskell
 elif echo $fn | grep -q '\.hs$'; then
-	cmd="ghc -Wno-tabs -o /tmp/a.out $fn && /tmp/a.out $@"
+	cmd="ghc -Wno-tabs -o /tmp/a.out $ARGS $fn && /tmp/a.out $@"
 
 # Scheme/racket
 # awk 'BEGIN{n=1}NR==1&&/#!.*racket/{n=0}END{exit n}' would work too
 elif ! sed -n '/^#!.*racket$/{q1}' $fn; then
-	cmd="racket $fn $@"
+	cmd="racket $ARGS $fn $@"
 
 # JavaScript
 elif echo $fn | grep -q '\.js$'; then
-	cmd="node $fn $@"
+	cmd="node $ARGS $fn $@"
 
 # Python
 elif echo $fn | grep -q '\.py$' || ! sed -n '/^#!.*python/{q1}' $fn ; then
-	cmd="python $fn $@"
+	cmd="python $ARGS $fn $@"
 	# acme(1)/plumb(1) friendly output
 	errp='sed "s/\", line \([0-9]\+\)/:\1/g"'
 
 # Perl
 elif echo $fn | grep -q '\.\(pl\|t\)$'; then
-	cmd="perl -MData::Dumper $fn $@"
+	cmd="perl -MData::Dumper $ARGS $fn $@"
 	# acme(1)/plumb(1) friendly output
 	errp='sed "s/ line \([0-9]\+\)/:\1/g"'
 
@@ -164,16 +172,16 @@ elif echo $fn | grep -q '\.tex$'; then
 	fi
 	# xdotool with exit with non-zero code when search fails
 	update="(xdotool search --onlyvisible --name '.*$pdf' key ctrl+r || xpdf $rpdf)"
-	pl="pdflatex -shell-escape"
+	pl="pdflatex -shell-escape $ARGS"
 	cmd="$pl $fn $@ && $bib && $pl $fn $@ && $pl $fn $@ && $update"
 
 # Nix
 elif echo $fn | grep -q '\.nix$'; then
-	cmd="nix-instantiate --eval $fn"
+	cmd="nix-instantiate --eval $ARGS $fn"
 
 # Man pages
 elif echo $fn | grep -q '[1-9]$'; then
-	cmd="man $fn"
+	cmd="man $ARGS $fn"
 
 # Assume executable script
 else
