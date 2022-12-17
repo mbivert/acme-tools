@@ -11,6 +11,7 @@ NAME
 SYNOPSYS
 	$p [-h]
 	$p [-m] [-n] [-p] [-u] [-x] [-g] <name> [pattern]
+	$p [-r]                          [name]
 
 DESCRIPTION
 	Open given file with acme, creating it as an empty file
@@ -32,13 +33,16 @@ DESCRIPTION
 	a corresponding buffer opened, then some of it will be
 	made visible by writing show its acme/$id/ctl.
 
-	If -x is specified, a chmod +x on the file is automatically
-	performed.
+	-x automatically triggers a chmod +x on the file.
 
-	If -g is specified, the name is interpreted as a pattern
+	With -g, the name is interpreted as a pattern
 	to be grep(1)'d in \$HOME/acme.files: the first existing
 	file matching the pattern is opened. If no match, exit
 	with failure. -g implies -u.
+
+	-r registers a filename to \$HOME/acme.files. If no name is
+	specified, then Open tries to collect one from a current
+	acme buffer, if any.
 
 	Paths starting with '/' are considered absolutely, otherwise,
 	relatively.
@@ -71,7 +75,8 @@ print=
 uniq=
 exec=
 grep=
-while getopts "mnpuxg" opt; do
+reg=
+while getopts "mnpuxgr" opt; do
 	case "$opt" in
 	m) up=1;;
 	n) nocreate=1;;
@@ -79,13 +84,28 @@ while getopts "mnpuxg" opt; do
 	u) uniq=1;;
 	x) exec=1;;
 	g) grep=1; uniq=1;;
+	r) reg=1;;
 	esac
 done
 
 shift $((OPTIND-1))
 
+# update $HOME/acme.files
+register() {
+	tmp=`mktemp /tmp/acme.files.XXXXXX`
+	(cat $fns; echo "$1";) > $tmp
+	sort -u $tmp > $fns
+	rm $tmp
+}
+
+if [ -n "$reg" ] && [ -z "$1" ]; then
+	set -- $(Getfn)
+fi
+
 if [ -z "$1" ]; then
-	echo `basename $0` '[-mnpux] <name> [pattern]'
+	echo `basename $0` '[-mnpuxg] <name> [pattern]' 1>&2
+	echo `basename $0` '-r        [name]'           1>&2
+	exit 1
 fi
 
 i="$1"
@@ -95,8 +115,11 @@ if [ -z "$2" ]; then
 	p=`echo "$1" | sed 's,/,\\\/,g'`
 fi
 
+if [ -n "$reg" ]; then
+	register $i
+	exit 0
 # NOTE: we have a similar loop in Run.
-if [ -n "$up" ]; then
+elif [ -n "$up" ]; then
 	d=$PWD
 	while [ "$d" != "/" ]; do
 		if [ -f "$d/$i" ] || [ -d "$d/$i" ]; then
@@ -158,11 +181,7 @@ else
 	echo "name $i" | 9p write acme/new/ctl
 fi
 
-# update $HOME/acme.files
-tmp=`mktemp /tmp/acme.files.XXXXXX`
-(cat $fns; echo "$i";) > $tmp
-sort -u $tmp > $fns
-rm $tmp
+register "$i"
 
 # Look for last one in case file is already opened,
 # relying on Getids's IDs sorting.
