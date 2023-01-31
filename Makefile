@@ -26,11 +26,15 @@ install: bin/See
 	@for x in bin/*; do \
 		install -o ${root} -g ${group} -m 755 $$x ${dir}/`basename $$x`; \
 	done
+	@# Convenient shortcut
+	@rm -f ${dir}/O
+	@ln -s ${dir}/Open ${dir}/O
 
 .PHONY: uninstall
 uninstall:
 	@echo "Removing all bin/* from ${dir}/..."
 	@for x in bin/*; do echo rm -f ${dir}/`basename $$x`; done
+	@rm -f ${dir}/O
 
 .PHONY: update-doc
 update-doc:
