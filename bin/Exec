@@ -68,9 +68,9 @@ if [ "$err" = "$to" ]; then
 		{
 			eval "$*" </dev/stdin 2>&3 | eval "$outp"
 		} 3>&1 | eval "$errp"
-	} | To $to
+	} | To -c $to
 else
 	{
-		eval "$*" </dev/stdin 2>&3 | eval "$outp" | To $to
-	} 3>&1 | eval "$errp" | To $err
+		eval "$*" </dev/stdin 2>&3 | eval "$outp" | To -c $to
+	} 3>&1 | eval "$errp" | To -c $err
 fi

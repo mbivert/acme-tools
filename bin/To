@@ -10,13 +10,15 @@ NAME
 
 SYNOPSYS
 	$p [-h]
-	$p [-a|id|pattern]
+	$p [-c] [-a|id|pattern]
 
 DESCRIPTION
 	$p redirects stdin/stdout to the first window pointed by
 	[-a|id|pattern]. We default to -a (+Buffer file).
 
 	If there's no buffer to write to, act as a cat(1).
+
+	If -c is specified, then the output buffer is cleared.
 
 EXAMPLES
 	# Display stat(1)'s output for current buffer in +Buffer,
@@ -25,6 +27,9 @@ EXAMPLES
 EOF
 	exit 0
 fi
+
+clear=
+if [ "$1" == "-c" ]; then clear=1; shift; fi
 
 if [ -z "$1" ]; then set -- -a; fi
 
@@ -35,5 +40,7 @@ if [ -z "$id" ]; then
 	exec cat
 fi
 
-echo -n , | 9p write acme/$id/addr
+if [ -n "$clear" ]; then
+	echo -n , | 9p write acme/$id/addr
+fi
 exec 9p write acme/$id/data
