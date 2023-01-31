@@ -1,0 +1,42 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+	echo `basename $0` '<winid>' 1>&2
+	exit 1
+fi
+
+id=$1
+
+# Note that this will naturally die when the corresponding
+# window is closed.
+9p read acme/$id/event 2>/dev/null | exec awk '
+{
+	# For some reason, automatic menu management is thrown
+	# away once /event is opened; do it here so as to avoid
+	# any dead-lock.
+	if (!menu) {
+		printf("menu")  | "9p write acme/'$id'/ctl"
+		menu = 1
+	}
+
+	print $0
+	# (flag & 1) || (flag & 2)
+	if ($3 % 2 || ($3 / 10) % 2) {
+		printf("%s %d\n", $1, $2) | "9p write acme/'$id'/event"
+	}
+}
+
+# $4 == 1 because otherwise this will be sometimes
+# triggered e.g. on copy/pasting stuff containing a 
+/K.*/ && $4 == 1 {
+	q0 = substr($1, 3)
+	q1 = $2
+	printf("#%d,#%d", q0, q1) | "9p write acme/'$id'/addr"
+	# flush the previous message before starting to work with /data,
+	# for otherwise, we may start writing stuff before
+	# the address where we want to write has been registered.
+	close("9p write acme/'$id'/addr")
+	printf("")     | "9p write acme/'$id'/data"
+	close("9p write acme/'$id'/data")
+	printf("put")  | "9p write acme/'$id'/ctl"
+}'

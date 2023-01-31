@@ -1,0 +1,27 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p <id>
+
+DESCRIPTION
+	$p test if the buffer pointed by the given id seems to correspond
+	to a win(1) buffer.
+
+	It exists with status 0 if it's the case, otherwise with exit
+	status 1, following ordinary sh(1) conventions.
+EOF
+	exit 0
+fi
+
+if Getfn $1 | grep -q -- '-[a-zA-Z]\+$'; then
+	exit 0
+fi
+exit 1

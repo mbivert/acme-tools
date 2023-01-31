@@ -377,6 +377,45 @@ small scripts load/dump current windows' states:
     		$ Exec go doc [args...]
 
 
+## Hook
+
+    NAME
+    	Hook
+
+    SYNOPSYS
+    	Hook [-h]
+
+    DESCRIPTION
+    	Hook registers a single hook $HOME/acme.hook to
+    	all existing buffers, and to all buffers about
+    	to future buffer.
+
+    	win(1) buffers are systematically ignored.
+
+    	It also registers a pid in $HOME/acme.hook.pid for Unhook.
+
+    BUGS
+    	For now at least, the idea is to have a central script
+    	acting as a hook, that could eventually delegate things
+    	to other scripts in case there's a need for finer filtering.
+
+
+## Iswin
+
+    NAME
+    	Iswin
+
+    SYNOPSYS
+    	Iswin [-h]
+    	Iswin <id>
+
+    DESCRIPTION
+    	Iswin test if the buffer pointed by the given id seems to correspond
+    	to a win(1) buffer.
+
+    	It exists with status 0 if it's the case, otherwise with exit
+    	status 1, following ordinary sh(1) conventions.
+
 ## Mv
 
     NAME
@@ -418,7 +457,8 @@ small scripts load/dump current windows' states:
 
     SYNOPSYS
     	Open [-h]
-    	Open [-m] [-n] [-p] [-u] [-x] <name> [pattern]
+    	Open [-m] [-n] [-p] [-u] [-x] [-g] <name> [pattern]
+    	Open [-r]                          [name]
 
     DESCRIPTION
     	Open given file with acme, creating it as an empty file
@@ -440,13 +480,16 @@ small scripts load/dump current windows' states:
     	a corresponding buffer opened, then some of it will be
     	made visible by writing show its acme//ctl.
 
-    	If -x is specified, a chmod +x on the file is automatically
-    	performed.
+    	-x automatically triggers a chmod +x on the file.
 
-    	If -g is specified, the name is interpreted as a pattern
+    	With -g, the name is interpreted as a pattern
     	to be grep(1)'d in $HOME/acme.files: the first existing
     	file matching the pattern is opened. If no match, exit
     	with failure. -g implies -u.
+
+    	-r registers a filename to $HOME/acme.files. If no name is
+    	specified, then Open tries to collect one from a current
+    	acme buffer, if any.
 
     	Paths starting with '/' are considered absolutely, otherwise,
     	relatively.
@@ -562,6 +605,11 @@ small scripts load/dump current windows' states:
     	-m will force the use of a Makefile by going up to / from current
     	buffer's directory, until a Makefile is found.
 
+    	As a convenience, the $ARGS environment variable is feed to the
+    	program called to execute/compile the target. By comparison, the
+    	[args] are forwarded to the executed/compiled target. This allows
+    	specifying ad-hoc options.
+
     EXAMPLES
     	1. By default, on a buffer pointing to a Makefile, 'Run tests' will:
     		- Put all buffers
@@ -575,6 +623,9 @@ small scripts load/dump current windows' states:
     	3. With the default setup, 'Run -- -m x' on a .c file will compile
     	the C file (assuming single file project) and execute the resulting
     	binary with '-m x' as CLI arguments.
+
+    	4. 'ARGS=--show-trace Run' on a .nix file will attempt to execute the
+    	.nix file, launching the nix interpreter with '--show-trace'.
 
 ## See
 
@@ -601,7 +652,7 @@ small scripts load/dump current windows' states:
 
     SYNOPSYS
     	To [-h]
-    	To [-a|id|pattern]
+    	To [-c] [-a|id|pattern]
 
     DESCRIPTION
     	To redirects stdin/stdout to the first window pointed by
@@ -609,10 +660,35 @@ small scripts load/dump current windows' states:
 
     	If there's no buffer to write to, act as a cat(1).
 
+    	If -c is specified, then the output buffer is cleared.
+
     EXAMPLES
     	# Display stat(1)'s output for current buffer in +Buffer,
     	# creating it if necessary.
     	(tagline)$ stat $% | To
+
+## Unhook
+
+    NAME
+    	Unhook
+
+    SYNOPSYS
+    	Unhook [-h]
+
+    DESCRIPTION
+    	Unhook "unregisters" $HOME/acme.hook by killing all the
+    	processes in the group of the process referenced in
+    	$HOME/acme.hook.pid.
+
+    BUGS
+    	This is crude.
+
+    	For now, this is only useful because regular file dumping
+    	mechanism is broken once someone listens to an event file.
+
+    	So we need to unhook (before rehooking) each time we want
+    	to dump. See XDump.
+
 
 ## Write
 

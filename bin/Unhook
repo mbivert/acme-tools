@@ -1,0 +1,37 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+
+DESCRIPTION
+	$p "unregisters" \$HOME/acme.hook by killing all the
+	processes in the group of the process referenced in
+	\$HOME/acme.hook.pid.
+
+BUGS
+	This is crude.
+
+	For now, this is only useful because regular file dumping
+	mechanism is broken once someone listens to an event file.
+
+	So we need to unhook (before rehooking) each time we want
+	to dump. See XDump.
+
+EOF
+	exit 0
+fi
+
+pidf=$HOME/acme.hook.pid
+if [ -f $pidf ] && ps -p `cat $pidf` >/dev/null; then
+	pkill -TERM -g $(ps -o '%r' `cat $pidf` | sed 1d)
+fi
+
+rm $pidf

@@ -1,0 +1,50 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+
+DESCRIPTION
+	$p registers a single hook \$HOME/acme.hook to
+	all existing buffers, and to all buffers about
+	to future buffer.
+
+	win(1) buffers are systematically ignored.
+
+	It also registers a pid in \$HOME/acme.hook.pid for Unhook.
+
+BUGS
+	For now at least, the idea is to have a central script
+	acting as a hook, that could eventually delegate things
+	to other scripts in case there's a need for finer filtering.
+
+EOF
+	exit 0
+fi
+
+hook=$HOME/acme.hook
+echo $$ > $HOME/acme.hook.pid
+
+# Nothing to hook.
+if [ ! -x $HOME/acme.hook ]; then
+	exit 0
+fi
+
+9p read acme/index | awk '$6 !~ /-[a-z]+$/ { print $1 }' | while read id; do
+	if ! Iswin $id; then
+		sh $hook $id &
+	fi
+done
+
+9p read acme/log | awk '/^[0-9]+ new / {
+	n = system("Iswin " $1)
+	if (n == 1)
+		system("sh '$hook' " $1 " &")
+}'

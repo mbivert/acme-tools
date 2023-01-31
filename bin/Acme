@@ -36,8 +36,12 @@ export PAGER
 nohup acme -a -f $PLAN9/font/lucm/unicode.9.font $@ 2>&1 > /tmp/acme.nohup.out.$$ &
 pid=$!
 
+# Wait a little for the fs to be up
+sleep 3
+nohup Hook 2>&1 > /dev/null &
+
 # Automatically dump to ~/acme.dumps/autodump.dump
-# every 10min; useful on crashes, battery depleted, etc.
+# every 10min; useful on crashes, depleted battery, etc.
 n=`expr 10 '*' 60`
 while true; do
 	sleep $n
@@ -48,3 +52,4 @@ while true; do
 	fi
 	XDump autodump
 done &
+
