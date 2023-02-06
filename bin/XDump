@@ -33,6 +33,6 @@ if ! echo "$f" | grep -q '\.dump$'; then
 	f=$d/$1.dump
 fi
 
-Unhook
+#Unhook
 Do "Dump $f" -a
-nohup Hook 2>&1 > /dev/null &
+#nohup Hook 2>&1 > /dev/null &

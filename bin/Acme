@@ -33,12 +33,15 @@ export PATH
 export EDITOR
 export PAGER
 
-nohup acme -a -f $PLAN9/font/lucm/unicode.9.font $@ 2>&1 > /tmp/acme.nohup.out.$$ &
+# nohup acme -a -f $PLAN9/font/lucm/unicode.9.font $@ 2>&1 > /tmp/acme.nohup.out.$$ &
+acme -a -f $PLAN9/font/lucm/unicode.9.font $@ &
+
 pid=$!
 
 # Wait a little for the fs to be up
 sleep 3
-nohup Hook 2>&1 > /dev/null &
+#nohup Hook 2>&1 > /dev/null &
+#Hook 2>&1 > /dev/null &
 
 # Automatically dump to ~/acme.dumps/autodump.dump
 # every 10min; useful on crashes, depleted battery, etc.
