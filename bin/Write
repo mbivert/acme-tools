@@ -23,6 +23,9 @@ EXAMPLES
 
 	# Appends "hello" to current window's body
 	(sh|tagline)\$ Write body hello
+
+	# Rename the current buffer (<data> is processed by printf(1))
+	(sh|tagline)\$ Write ctl "name /path/to/newname\n"
 EOF
 	exit 0
 fi
@@ -40,5 +43,5 @@ Getids $3 | while read x; do
 			continue
 		fi
 	fi
-	echo -n "$2" | 9p write acme/$x/$1
+	printf "$2" | 9p write acme/$x/$1
 done
