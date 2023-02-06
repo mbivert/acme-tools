@@ -427,17 +427,25 @@ small scripts load/dump current windows' states:
 
     DESCRIPTION
     	Move (mv(1)) current file, or the one pointed by [-a|id|pattern],
-    	to the new one, updating acme's buffer's name accordingly.
+    	to a new one, on the filesystem that is, and updating acme's
+    	buffer's name accordingly.
 
-    	If to doesn't start with a leading '/', renaming is performed
+    	If 'to' doesn't start with a leading '/', renaming is performed
     	relatively instead of absolutely.
 
-    	If to describes a missing path, intermediate directories
+    	If the current buffer points to a file (by opposition to a directory),
+    	and 'to' ends with a '/', then the file pointed by the current buffer
+    	is moved to the directory pointed by 'to'.
+
+    	If 'to' describes a missing path, intermediate directories
     	are created (mkdir(1) -p); existing file is overwritten,
     	following mv(1)' semantic.
 
     EXAMPLE
-    	Rename from "/home/foo/bar.c" to "/home/foo/baz.c":
+    	In each of the example below, the source filename is
+    	to be interpreted as the current buffer's name.
+
+    	Renaming "/home/foo/bar.c" to "/home/foo/baz.c":
     		Mv /home/foo/baz.c
     		Mv baz.c
 
@@ -445,9 +453,18 @@ small scripts load/dump current windows' states:
     		Mv foo
     		Mv foo/
 
+    	Renaming "foo.c" to "foo/bar/foo.c":
+    		Mv foo/bar/
+
+    	Renaming "foo.c" to "foo/bar":
+    		Mv foo/bar
+
     BUGS:
     	We may want to allow regexp(7) with capture, so as to allow
     	renaming multiple files/buffers at once.
+
+    	We require realpath(1) to be available to clean up the path,
+    	e.g. in case of 'Mv ../../'.
 
 
 ## Open
@@ -714,6 +731,9 @@ small scripts load/dump current windows' states:
 
     	# Appends "hello" to current window's body
     	(sh|tagline)$ Write body hello
+
+    	# Rename the current buffer (<data> is processed by printf(1))
+    	(sh|tagline)$ Write ctl "name /path/to/newname\n"
 
 ## XDel
 
