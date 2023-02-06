@@ -10,8 +10,8 @@ NAME
 
 SYNOPSYS
 	$p [-h]
-	$p [-m] [-n] [-p] [-u] [-x] [-g] <name> [pattern]
-	$p [-r]                          [name]
+	$p [-m] [-n] [-p] [-u] [-x] [-g] [-q] <name> [pattern]
+	$p [-r]                               [name]
 
 DESCRIPTION
 	Open given file with acme, creating it as an empty file
@@ -39,6 +39,10 @@ DESCRIPTION
 	to be grep(1)'d in \$HOME/acme.files: the first existing
 	file matching the pattern is opened. If no match, exit
 	with failure. -g implies -u.
+
+	By default, Open will focus on the buffer being opened
+	(see acme(4), 'ctl' file, 'show' option): -q disables this
+	behavior.
 
 	-r registers a filename to \$HOME/acme.files. If no name is
 	specified, then Open tries to collect one from a current
@@ -76,7 +80,8 @@ uniq=
 exec=
 grep=
 reg=
-while getopts "mnpuxgr" opt; do
+quiet=
+while getopts "mnpuxgqr" opt; do
 	case "$opt" in
 	m) up=1;;
 	n) nocreate=1;;
@@ -84,6 +89,7 @@ while getopts "mnpuxgr" opt; do
 	u) uniq=1;;
 	x) exec=1;;
 	g) grep=1; uniq=1;;
+	q) quiet=1;;
 	r) reg=1;;
 	esac
 done
@@ -103,8 +109,8 @@ if [ -n "$reg" ] && [ -z "$1" ]; then
 fi
 
 if [ -z "$1" ]; then
-	echo `basename $0` '[-mnpuxg] <name> [pattern]' 1>&2
-	echo `basename $0` '-r        [name]'           1>&2
+	echo `basename $0` '[-mnpuxgq] <name> [pattern]' 1>&2
+	echo `basename $0` '-r         [name]'           1>&2
 	exit 1
 fi
 
@@ -175,7 +181,9 @@ if [ -n "$uniq" ]; then
 			# the changes are pushed to disk
 			XPut $x
 		fi
-		Write ctl show $x
+		if [ -z "$quiet" ]; then
+			Write ctl show $x
+		fi
 	fi
 else
 	echo "name $i" | 9p write acme/new/ctl

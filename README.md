@@ -457,8 +457,8 @@ small scripts load/dump current windows' states:
 
     SYNOPSYS
     	Open [-h]
-    	Open [-m] [-n] [-p] [-u] [-x] [-g] <name> [pattern]
-    	Open [-r]                          [name]
+    	Open [-m] [-n] [-p] [-u] [-x] [-g] [-q] <name> [pattern]
+    	Open [-r]                               [name]
 
     DESCRIPTION
     	Open given file with acme, creating it as an empty file
@@ -486,6 +486,10 @@ small scripts load/dump current windows' states:
     	to be grep(1)'d in $HOME/acme.files: the first existing
     	file matching the pattern is opened. If no match, exit
     	with failure. -g implies -u.
+
+    	By default, Open will focus on the buffer being opened
+    	(see acme(4), 'ctl' file, 'show' option): -q disables this
+    	behavior.
 
     	-r registers a filename to $HOME/acme.files. If no name is
     	specified, then Open tries to collect one from a current

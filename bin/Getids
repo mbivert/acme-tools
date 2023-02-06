@@ -45,7 +45,11 @@ elif [ -z "$1" ]; then
 # -a (auto) : write to +Buffer
 elif [ "$1" = "-a" ]; then
 	# Ensure +Buffer exists. In case there are many, just keep one.
-	x=`Open -n -p -u '+Buffer' '\+Buffer$'`
+	# NOTE: we're opening it quietly (-q) for otherwise, the
+	# mouse jumps to the buffer, as it's beeing forced to be
+	# displayed. Perhaps we could add a -b aside of -a to
+	# control the behavior.
+	x=`Open -n -q -p -u '+Buffer' '\+Buffer$'`
 
 	# Ensure +Buffer is prefixed with pwd (e.g. grep -n)
 	echo 'name '`pwd`'/+Buffer' | 9p write acme/$x/ctl
