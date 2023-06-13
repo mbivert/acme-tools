@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p [cmd]
+
+DESCRIPTION
+	$p executes help(cmd) within R, via Exec. Conceptually,
+	this is a shortcut for (there's some extra-boilerplate):
+		$ Exec "echo 'help(\$cmd)' | Rscript /dev/stdin"
+
+BUG
+	Relies on a sed(1) with the [:print:] character class for
+	cleanup.
+
+EOF
+	exit 0
+fi
+
+# Used to be R -q --no-save < /dev/stdin instead of Rscript
+exec Exec "echo 'help($@)' | Rscript /dev/stdin | sed $'s/[^[:print:]\t]//g'"

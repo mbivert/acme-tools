@@ -529,6 +529,25 @@ small scripts load/dump current windows' states:
     		Open -n -u '+Buffer' '\+Buffer$'
 
 
+## Rdoc
+
+    NAME
+    	Rdoc
+
+    SYNOPSYS
+    	Rdoc [-h]
+    	Rdoc [cmd]
+
+    DESCRIPTION
+    	Rdoc executes help(cmd) within R, via Exec. Conceptually,
+    	this is a shortcut for (there's some extra-boilerplate):
+    		$ Exec "echo 'help($cmd)' | Rscript /dev/stdin"
+
+    BUG
+    	Relies on a sed(1) with the [:print:] character class for
+    	cleanup.
+
+
 ## Read
 
     NAME

@@ -179,6 +179,10 @@ elif echo $fn | grep -q '\.tex$'; then
 elif echo $fn | grep -q '\.nix$'; then
 	cmd="nix-instantiate --eval $ARGS $fn"
 
+# R scripts
+elif echo $fn | grep -q '\.r$'; then
+	cmd="Rscript $ARGS $fn $@"
+
 # Man pages
 elif echo $fn | grep -q '[1-9]$'; then
 	cmd="man $ARGS $fn"
