@@ -154,6 +154,9 @@ if [ -z "$nocreate" ]; then
 	# Create dirname on disk if missing
 	mkdir -p `dirname "$i"`
 
+	# TODO: clarify
+	i=$(realpath $i)
+
 	# $i is a new directory
 	if echo "$i" | grep -q '/$'; then mkdir -p "$i"; fi
 
