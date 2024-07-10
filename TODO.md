@@ -75,6 +75,9 @@ Rename breaks e.g. if string to rename contains [].
 Perhaps we could store "somewhere" a special token, "xdump:<name>"
 to automatically name the dump files used by XDump?
 
+# XPutall doesn't write files with special characters @xputalll-special-chars
+For example, a filename containing `{{.tags}}`.
+
 # XPutall wrong exit code @xputall-exit-code
 To be tested: "XPutall && echo ok" should fail when at least one
 file cannot be written to.
