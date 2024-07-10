@@ -263,7 +263,7 @@ small scripts load/dump current windows' states:
 
     SYNOPSYS
     	Do [-h]
-    	Do <cmd> [-a|id|pattern]
+    	Do <cmd> [-a|id|pattern [-k]]
 
     DESCRIPTION
     	Do runs a command <cmd> in the taglines of the windows pointed by
@@ -274,9 +274,15 @@ small scripts load/dump current windows' states:
     	but written in sh(1), orthogonal with Getids's behavior (+Buffer
     	management, and X// like looping on filenames patterns.
 
+    	If -a is augmented with a -k, we will keep the original directory
+    	of the +Buffer window. Use case is the autodump in the Acme
+    	script, which systematically reset the directory, and thus messes
+    	up regularly e.g. the "clickable links" of the compiler output.
+
     EXAMPLES
     	$ Do 'Edit ,d' -a
     		Clear '+Buffer' window's body
+
 
 ## Exec
 
@@ -777,12 +783,15 @@ small scripts load/dump current windows' states:
 
     SYNOPSYS
     	XDump [-h]
-    	XDump <session>
+    	XDump <session> [-k]
 
     DESCRIPTION
     	XDump dumps current state to <session>. <session> is automatically
     	appended a .dump suffix if needed, and is stored as a file in
     	$HOME/acme.dumps/
+
+    	If -k is provided, it'll be forwarded to Do: the directory
+    	name of the +Buffer window won't be altered.
 
 ## XLoad
 

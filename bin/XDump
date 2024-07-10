@@ -10,12 +10,15 @@ NAME
 
 SYNOPSYS
 	$p [-h]
-	$p <session>
+	$p <session> [-k]
 
 DESCRIPTION
 	$p dumps current state to <session>. <session> is automatically
 	appended a .dump suffix if needed, and is stored as a file in
 	\$HOME/acme.dumps/
+
+	If -k is provided, it'll be forwarded to Do: the directory
+	name of the +Buffer window won't be altered.
 EOF
 	exit 0
 fi
@@ -34,5 +37,5 @@ if ! echo "$f" | grep -q '\.dump$'; then
 fi
 
 #Unhook
-Do "Dump $f" -a
+Do "Dump $f" -a $2
 #nohup Hook 2>&1 > /dev/null &

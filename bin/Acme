@@ -53,6 +53,6 @@ while true; do
 	if ! ps -p $pid >/dev/null; then
 		exit 0
 	fi
-	XDump autodump
+	XDump autodump -k
 done &
 

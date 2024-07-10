@@ -52,7 +52,9 @@ elif [ "$1" = "-a" ]; then
 	x=`Open -n -q -p -u '+Buffer' '\+Buffer$'`
 
 	# Ensure +Buffer is prefixed with pwd (e.g. grep -n)
-	echo 'name '`pwd`'/+Buffer' | 9p write acme/$x/ctl
+	if [ "$2" != "-k" ]; then
+		echo 'name '`pwd`'/+Buffer' | 9p write acme/$x/ctl
+	fi
 	echo $x
 
 # $1 is a single integer: assume existing acme window ID

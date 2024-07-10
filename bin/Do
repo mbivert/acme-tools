@@ -10,7 +10,7 @@ NAME
 
 SYNOPSYS
 	$p [-h]
-	$p <cmd> [-a|id|pattern]
+	$p <cmd> [-a|id|pattern [-k]]
 
 DESCRIPTION
 	$p runs a command <cmd> in the taglines of the windows pointed by
@@ -21,9 +21,15 @@ DESCRIPTION
 	but written in sh(1), orthogonal with Getids's behavior (+Buffer
 	management, and X// like looping on filenames patterns.
 
+	If -a is augmented with a -k, we will keep the original directory
+	of the +Buffer window. Use case is the autodump in the Acme
+	script, which systematically reset the directory, and thus messes
+	up regularly e.g. the "clickable links" of the compiler output.
+
 EXAMPLES
 	\$ Do 'Edit ,d' -a
 		Clear '+Buffer' window's body
+
 EOF
 	exit 0
 fi
@@ -32,6 +38,11 @@ if [ -z "$1" ]; then exit 0; fi
 
 c="$1"
 m=`echo -n "$c" | wc -c`
+
+if [ "$2" == "-a" ] && [ "$3" == "-k" ]; then
+	Getids -a -k
+	fn=$(9p read acme/$(Getids -a -k)/tag | awk '{ printf("%s", $1); exit(0) }')
+fi
 
 Getids $2 | while read x; do
 	t=`9p read acme/$x/tag | cut -d'|' -f2-`
@@ -56,6 +67,11 @@ Getids $2 | while read x; do
 	# Reset tag
 	Write ctl cleartag $x
 	Write tag "$t" $x
+
+	# Restore original filename (directory of +Buffer, really)
+	if [ ! -z "$fn" ]; then
+		Write ctl "name $fn\n" $x
+	fi
 
 	# Restore automatic menu management
 	Write ctl menu $x

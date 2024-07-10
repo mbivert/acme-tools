@@ -173,6 +173,7 @@ elif echo $fn | grep -q '\.tex$'; then
 	# xdotool with exit with non-zero code when search fails
 	update="(xdotool search --onlyvisible --name '.*$pdf' key ctrl+r || xpdf $rpdf)"
 	pl="pdflatex -shell-escape $ARGS"
+#	pl="lualatex -shell-escape $ARGS"
 	cmd="$pl $fn $@ && $bib && $pl $fn $@ && $pl $fn $@ && $update"
 
 # Nix
