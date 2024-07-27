@@ -139,7 +139,7 @@ elif ! sed -n '/^#!.*racket$/{q1}' $fn; then
 	cmd="racket $ARGS $fn $@"
 
 # JavaScript
-elif echo $fn | grep -q '\.js$'; then
+elif echo $fn | grep -q '\.\(js\|cjs\)$'; then
 	cmd="node $ARGS $fn $@"
 
 # Python
