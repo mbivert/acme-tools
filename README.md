@@ -383,6 +383,19 @@ small scripts load/dump current windows' states:
     		$ Exec go doc [args...]
 
 
+## Goimports
+
+    NAME
+    	Goimports
+
+    SYNOPSYS
+    	Goimports [-h]
+    	Goimports
+
+    DESCRIPTION
+    	Goimports will run 'goimports -w' on every opened
+    	'.go' file, and update ("get") the buffers.
+
 ## Hook
 
     NAME

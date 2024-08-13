@@ -122,7 +122,7 @@ elif echo $fn | grep -q '\.go$'; then
 #	cmd="go run $(cat $tmpfn | tr -s '\n' ' ') $@"
 #	rm $tmpfn
 
-	cmd="go run $ARGS $fn $@"
+	cmd="Goimports && go run $ARGS $fn $@"
 
 # C
 elif echo $fn | grep -q '\.c$'; then
