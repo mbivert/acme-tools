@@ -18,4 +18,5 @@ EOF
 	exit 0
 fi
 
-Getwin '.*'
+# NOTE: used to have a "Getwin" binary
+Write ctl get $1
