@@ -35,7 +35,7 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
-Getids $3 | while read x; do
+Getids "$3" | while read x; do
 	# Don't run read/write +Errors/win(1)/+Buffer, etc.
 	f=$(basename `Getfn "$x"`)
 	if echo "$f" | /bin/grep -q '^[^\.a-zA-Z0-9]' && [ "$1" = "ctl" ]; then
