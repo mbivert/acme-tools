@@ -176,6 +176,19 @@ elif echo $fn | grep -q '\.tex$'; then
 #	pl="lualatex -shell-escape $ARGS"
 	cmd="$pl $fn $@ && $bib && $pl $fn $@ && $pl $fn $@ && $update"
 
+# typst
+elif echo $fn | grep -q '\.typ$'; then
+	# XXX/TODO: if there are multiple xpdf opened, ctrl+r
+	# is only sent to one of them, so narrow the search to
+	# the one likely to match our current file.
+#	update="xdotool search --onlyvisible --class Xpdf key ctrl+r"
+	rpdf=`echo $fn | sed 's/\.typ$/.pdf/'`
+	pdf=`basename $fn .typ`.pdf
+
+	update="(xdotool search --onlyvisible --name '.*$pdf' key ctrl+r || xpdf $rpdf)"
+	pl="typst compile $ARGS"
+	cmd="$pl $fn $@ && $update"
+
 # Nix
 elif echo $fn | grep -q '\.nix$'; then
 	cmd="nix-instantiate --eval $ARGS $fn"
