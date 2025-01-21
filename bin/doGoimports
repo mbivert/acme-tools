@@ -1,0 +1,43 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+    # The documentation below is for both doGoimports
+    # and Goimports
+	#p=`basename $0`
+    p=doGoimports
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p
+	Goimports [-h]
+	Goimports
+
+DESCRIPTION
+	$p will run 'goimports -w' on every opened
+	'.go' file, and update ("get") the corresponding buffers.
+
+	Goimports wraps calling $p in Exec -- $p's output is
+	sent to the +Buffer instead of a random +Error window.
+EOF
+	exit 0
+fi
+
+if ! which goimports >/dev/null 2>/dev/null; then
+	echo "goimports not installed; try running:"
+	echo "  go install golang.org/x/tools/cmd/goimports@latest"
+	exit 1
+fi
+
+# Will often be redundant (i.e. Run), but it's almost always what we want anyway
+XPutall
+
+9p read acme/index | awk '$6 ~ /\.go$/ { print $1, $6 }' | sort -n | while read x; do
+	set -- $x
+	goimports -w "$2"
+	echo -n get | 9p write acme/$1/ctl
+done

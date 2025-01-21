@@ -284,6 +284,24 @@ small scripts load/dump current windows' states:
     		Clear '+Buffer' window's body
 
 
+## doGoimports
+
+    NAME
+    	doGoimports
+
+    SYNOPSYS
+    	doGoimports [-h]
+    	doGoimports
+    	Goimports [-h]
+    	Goimports
+
+    DESCRIPTION
+    	doGoimports will run 'goimports -w' on every opened
+    	'.go' file, and update ("get") the corresponding buffers.
+
+    	Goimports wraps calling doGoimports in Exec -- doGoimports's output is
+    	sent to the +Buffer instead of a random +Error window.
+
 ## Exec
 
     NAME
@@ -386,15 +404,15 @@ small scripts load/dump current windows' states:
 ## Goimports
 
     NAME
-    	Goimports
+    	doGoimports
 
     SYNOPSYS
-    	Goimports [-h]
-    	Goimports
+    	doGoimports [-h]
+    	doGoimports
 
     DESCRIPTION
     	Goimports will run 'goimports -w' on every opened
-    	'.go' file, and update ("get") the buffers.
+    	'.go' file, and update ("get") the corresponding buffers.
 
 ## Hook
 

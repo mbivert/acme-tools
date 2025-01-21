@@ -1,35 +1,7 @@
 #!/bin/sh
 
-set -e
-
-if [ "$1" = "-h" ] && [ "$2" = "" ]; then
-	p=`basename $0`
-	cat <<EOF
-NAME
-	$p
-
-SYNOPSYS
-	$p [-h]
-	$p
-
-DESCRIPTION
-	Goimports will run 'goimports -w' on every opened
-	'.go' file, and update ("get") the corresponding buffers.
-EOF
-	exit 0
+if [ "$1" = "-h" ]; then
+    exec doGoimports -h
 fi
 
-if ! which goimports >/dev/null 2>/dev/null; then
-	echo "goimports not installed; try running:"
-	echo "  go install golang.org/x/tools/cmd/goimports@latest"
-	exit 1
-fi
-
-# Will often be redundant (i.e. Run), but it's almost always what we want anyway
-XPutall
-
-9p read acme/index | awk '$6 ~ /\.go$/ { print $1, $6 }' | sort -n | while read x; do
-	set -- $x
-	goimports -w "$2"
-	echo -n get | 9p write acme/$1/ctl
-done
+Exec doGoimports $@
