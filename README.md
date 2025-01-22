@@ -230,6 +230,36 @@ small scripts load/dump current windows' states:
 
     		- Execute 'Run' from that tagline every 10 seconds.
 
+## Blame
+
+    NAME
+    	Blame
+
+    SYNOPSYS
+    	Blame [-h]
+    	Blame
+
+    DESCRIPTION
+    	Blame is intended to be run only from the tagline. It'll put
+    	the current buffer, and swap its content for the output
+    	of 'git blame $%', where $% is the current buffer's filename.
+
+    	If the current buffer already contains the output of a
+    	'git blame', Blame will remove the blaming data.
+
+## Checkout
+
+    NAME
+    	Checkout
+
+    SYNOPSYS
+    	Checkout [-h]
+    	Checkout
+
+    DESCRIPTION
+    	Checkout git-checkout(1)s the file associated to the current buffer,
+    	and reload the file from disk.
+
 ## Clear
 
     NAME

@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -e
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p
+
+DESCRIPTION
+	$p git-checkout(1)s the file associated to the current buffer,
+	and reload the file from disk.
+EOF
+	exit 0
+fi
+
+fn=$(Getfn "$winid")
+Exec git checkout $fn
+
+# If we're not clean, the get below will complain
+echo -n clean | 9p write acme/$winid/ctl
+echo -n get   | 9p write acme/$winid/ctl

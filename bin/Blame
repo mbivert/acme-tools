@@ -1,0 +1,50 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-h" ] && [ "$2" = "" ]; then
+	p=`basename $0`
+	cat <<EOF
+NAME
+	$p
+
+SYNOPSYS
+	$p [-h]
+	$p
+
+DESCRIPTION
+	$p is intended to be run only from the tagline. It'll put
+	the current buffer, and swap its content for the output
+	of 'git blame \$%', where \$% is the current buffer's filename.
+
+	If the current buffer already contains the output of a
+	'git blame', $p will remove the blaming data.
+EOF
+	exit 0
+fi
+
+if [ -z "$winid" ]; then
+      echo 'no $winid?!' 1>&2
+      exit 1
+fi
+
+# does the current buffer contains something others than
+# git-blame(1)d lines?
+#
+# NOTE: seems that the repository's first commit hash is
+# prefixed by a caret
+isntblame() {
+	9p read acme/$winid/body 2>/dev/null \
+		| grep -v '^\^\?[a-f0-9]\+ ([^)]\+) '
+}
+
+if isntblame; then
+	echo not blame
+	# save changes if any
+	# XPut
+	fn=$(Getfn "$winid")
+	git blame $fn | To -c "$winid"
+else
+	# trim git-blame(1) data
+	Do "Edit , | sed 's/^\^\?[a-f0-9]\+ ([^)]\+) //'" $winid
+fi
