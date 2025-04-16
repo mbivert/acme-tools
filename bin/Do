@@ -45,7 +45,7 @@ if [ "$2" == "-a" ] && [ "$3" == "-k" ]; then
 fi
 
 Getids $2 | while read x; do
-	t=`9p read acme/$x/tag | cut -d'|' -f2-`
+	t=$(9p read acme/$x/tag | sed '1s/.*|//;s/\\n/\\\\n/')
 
 	# Undocumented in acme(4): don't automatically update
 	# menu so that it won't messes our offsets
